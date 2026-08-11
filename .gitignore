@@ -216,3 +216,8 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Project-specific: local data cache (DuckDB, filing PDFs, Qdrant storage)
+data/*
+!data/.gitkeep
+
