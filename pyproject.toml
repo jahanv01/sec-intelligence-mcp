@@ -3,7 +3,7 @@ name = "sec-intelligence-mcp"
 version = "0.1.0"
 description = "MCP server for SEC EDGAR filing intelligence (search, retrieval, evaluation)"
 authors = [
-    { name = "jahanvi", email = "jahanvikpanchal01@gmail.com" }
+    { name = "jahanvi", email = "jahanv01@users.noreply.github.com" }
 ]
 requires-python = ">=3.12"
 dependencies = [
@@ -17,5 +17,9 @@ package = false
 
 [dependency-groups]
 dev = [
+    "pytest>=9.1.1",
     "ruff>=0.6",
 ]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]

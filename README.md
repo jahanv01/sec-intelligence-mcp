@@ -24,6 +24,14 @@ evaluation, exposed as tools an MCP client (e.g. Claude Desktop) can call.
    uv run mcp dev src/server.py
    ```
 
+## Running via Docker
+
+`docker compose up -d` builds the server image and starts it alongside Qdrant. The `app`
+service reads secrets from your local `.env` via `env_file`, and `QDRANT_URL` is overridden
+to `http://qdrant:6333` (the in-network service name) since `localhost` inside the container
+would not reach the `qdrant` container. `config.py` still fails fast if `.env` is missing
+required keys.
+
 ## Getting API keys (all free)
 
 | Variable | Where to get it |
