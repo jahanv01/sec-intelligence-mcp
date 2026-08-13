@@ -14,6 +14,9 @@ dependencies = [
 
 [tool.uv]
 package = false
+# copy instead of hardlink: avoids "cloud operation... incompatible hardlinks" errors
+# when the uv cache or project dir sits under a cloud-sync provider (OneDrive, etc.)
+link-mode = "copy"
 
 [dependency-groups]
 dev = [
