@@ -25,3 +25,7 @@ QDRANT_URL = os.environ["QDRANT_URL"]
 QDRANT_API_KEY = os.getenv("QDRANT_API_KEY")  # optional for local Qdrant
 LANGFUSE_SECRET_KEY = os.environ["LANGFUSE_SECRET_KEY"]
 LANGFUSE_PUBLIC_KEY = os.environ["LANGFUSE_PUBLIC_KEY"]
+
+# Optional: SEC EDGAR requires an identifying User-Agent ("AppName contact@email.com") or it
+# returns 403. Not fail-fast since a sensible default works for local dev.
+SEC_EDGAR_USER_AGENT = os.getenv("SEC_EDGAR_USER_AGENT", "sec-intelligence-mcp dev@example.com")
