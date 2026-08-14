@@ -22,7 +22,7 @@ if _missing:
 
 GEMINI_API_KEY = os.environ["GEMINI_API_KEY"]
 QDRANT_URL = os.environ["QDRANT_URL"]
-QDRANT_API_KEY = os.getenv("QDRANT_API_KEY")  # optional for local Qdrant
+QDRANT_API_KEY = os.getenv("QDRANT_API_KEY") or None  # optional for local Qdrant
 LANGFUSE_SECRET_KEY = os.environ["LANGFUSE_SECRET_KEY"]
 LANGFUSE_PUBLIC_KEY = os.environ["LANGFUSE_PUBLIC_KEY"]
 
