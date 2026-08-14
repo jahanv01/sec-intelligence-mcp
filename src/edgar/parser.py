@@ -26,6 +26,9 @@ CREATE TABLE IF NOT EXISTS filing_content (
 
 class ParsedFiling(BaseModel):
     accession_number: str
+    ticker: str = ""
+    form_type: str = ""
+    fiscal_year: int | None = None
     raw_text: str
     page_count: int | None = None
 
@@ -58,7 +61,12 @@ def fetch_and_parse_filing(filing: Filing) -> ParsedFiling:
         raw_text, page_count = _extract_html_text(response.content), None
 
     parsed = ParsedFiling(
-        accession_number=filing.accession_number, raw_text=raw_text, page_count=page_count
+        accession_number=filing.accession_number,
+        ticker=filing.ticker,
+        form_type=filing.form_type,
+        fiscal_year=int(filing.filing_date[:4]),
+        raw_text=raw_text,
+        page_count=page_count,
     )
 
     DB_PATH.parent.mkdir(parents=True, exist_ok=True)

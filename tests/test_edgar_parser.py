@@ -9,6 +9,7 @@ from edgar.filings import Filing
 
 FAKE_FILING = Filing(
     cik="0000320193",
+    ticker="AAPL",
     form_type="10-K",
     filing_date="2025-10-31",
     accession_number="0000320193-25-000079",

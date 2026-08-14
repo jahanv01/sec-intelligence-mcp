@@ -40,6 +40,8 @@ required keys.
 | `QDRANT_URL` | `http://localhost:6333` when running Qdrant via `docker compose up -d qdrant` (no signup needed) |
 | `QDRANT_API_KEY` | Only needed for a hosted Qdrant Cloud instance; leave blank for local |
 | `LANGFUSE_SECRET_KEY` / `LANGFUSE_PUBLIC_KEY` | https://cloud.langfuse.com — free tier, create a project, copy keys from Settings → API Keys |
+| `SEC_EDGAR_USER_AGENT` | Optional. Any string of the form `"AppName you@email.com"`; EDGAR just wants a way to identify/contact you |
+| `EMBEDDING_MODEL` | Optional. Defaults to `intfloat/e5-base-v2`; no signup needed, downloads from Hugging Face on first use |
 
 `src/config.py` fails fast at import time (raises `RuntimeError`) if any required key is missing.
 
@@ -75,6 +77,18 @@ uv run python -c "import mcp"                    # SDK installed correctly
 uv run python scripts/test_server_stdio.py        # server responds over stdio (ping -> pong)
 docker compose up -d qdrant
 uv run python scripts/test_qdrant.py               # Qdrant round-trip works
+
+# EDGAR data layer (each hits the real EDGAR API)
+uv run python scripts/test_edgar_lookup.py         # ticker -> CIK, DuckDB-cached
+uv run python scripts/test_edgar_filings.py        # recent 10-K filings for a ticker
+uv run python scripts/test_edgar_parser.py         # download + clean a real filing
+uv run python scripts/test_edgar_sections.py       # section detection + metadata
+
+# Embedding & retrieval pipeline (real model + real Qdrant)
+uv run python scripts/test_chunker.py              # section/paragraph chunking
+uv run python scripts/test_encoder.py              # E5 embedding shape/latency
+uv run python scripts/test_ingest.py               # chunk -> embed -> upsert to Qdrant
+uv run python scripts/test_search.py               # semantic search with citations
 ```
 
 ## Project structure

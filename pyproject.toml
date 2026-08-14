@@ -15,6 +15,9 @@ dependencies = [
     "pydantic>=2.13.4",
     "python-dotenv>=1.0",
     "qdrant-client>=1.19.0",
+    "sentence-transformers>=5.7.0",
+    "tiktoken>=0.13.0",
+    "torch>=2.13.0",
 ]
 
 [tool.uv]
@@ -22,6 +25,14 @@ package = false
 # copy instead of hardlink: avoids "cloud operation... incompatible hardlinks" errors
 # when the uv cache or project dir sits under a cloud-sync provider (OneDrive, etc.)
 link-mode = "copy"
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[tool.uv.sources]
+torch = { index = "pytorch-cpu" }
 
 [dependency-groups]
 dev = [
