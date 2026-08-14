@@ -15,6 +15,7 @@ SUBMISSIONS_URL = "https://data.sec.gov/submissions/CIK{cik}.json"
 _CREATE_TABLE_SQL = """
 CREATE TABLE IF NOT EXISTS filings (
     cik TEXT NOT NULL,
+    ticker TEXT NOT NULL,
     form_type TEXT NOT NULL,
     filing_date TEXT NOT NULL,
     accession_number TEXT PRIMARY KEY,
@@ -26,6 +27,7 @@ CREATE TABLE IF NOT EXISTS filings (
 
 class Filing(BaseModel):
     cik: str
+    ticker: str
     form_type: str
     filing_date: str
     accession_number: str
@@ -42,6 +44,7 @@ def _document_url(cik: str, accession_number: str, primary_document: str) -> str
 
 
 def get_recent_filings(ticker: str, form_type: str = "10-K", limit: int = 5) -> list[Filing]:
+    ticker = ticker.upper()
     cik = get_cik(ticker)
 
     response = httpx.get(
@@ -59,6 +62,7 @@ def get_recent_filings(ticker: str, form_type: str = "10-K", limit: int = 5) -> 
         filings.append(
             Filing(
                 cik=cik,
+                ticker=ticker,
                 form_type=recent["form"][i],
                 filing_date=recent["filingDate"][i],
                 accession_number=recent["accessionNumber"][i],
@@ -76,11 +80,19 @@ def get_recent_filings(ticker: str, form_type: str = "10-K", limit: int = 5) -> 
         for f in filings:
             conn.execute(
                 """
-                INSERT INTO filings (cik, form_type, filing_date, accession_number, primary_doc_url)
-                VALUES (?, ?, ?, ?, ?)
+                INSERT INTO filings
+                    (cik, ticker, form_type, filing_date, accession_number, primary_doc_url)
+                VALUES (?, ?, ?, ?, ?, ?)
                 ON CONFLICT (accession_number) DO NOTHING
                 """,
-                [f.cik, f.form_type, f.filing_date, f.accession_number, f.primary_doc_url],
+                [
+                    f.cik,
+                    f.ticker,
+                    f.form_type,
+                    f.filing_date,
+                    f.accession_number,
+                    f.primary_doc_url,
+                ],
             )
 
     return filings

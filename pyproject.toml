@@ -15,6 +15,7 @@ dependencies = [
     "pydantic>=2.13.4",
     "python-dotenv>=1.0",
     "qdrant-client>=1.19.0",
+    "tiktoken>=0.13.0",
 ]
 
 [tool.uv]
