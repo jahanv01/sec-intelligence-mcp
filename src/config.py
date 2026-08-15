@@ -33,3 +33,8 @@ SEC_EDGAR_USER_AGENT = os.getenv("SEC_EDGAR_USER_AGENT", "sec-intelligence-mcp d
 # Optional: which sentence-transformers model to embed with. e5-base-v2 (768-dim, CPU-only,
 # 110M params) is the default; bge-base-en-v1.5 is a same-family drop-in alternative.
 EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "intfloat/e5-base-v2")
+
+# Optional: Gemini model for answer generation/summarization. "-latest" aliases track
+# whatever Google currently recommends, so this doesn't need updating as specific dated
+# model versions get deprecated.
+GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-flash-lite-latest")
