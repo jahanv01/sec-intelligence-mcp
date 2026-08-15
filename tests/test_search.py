@@ -55,6 +55,17 @@ def test_search_builds_filter_for_ticker_form_type_and_year():
     assert field_values == {"ticker": "NVDA", "form_type": "10-K", "fiscal_year": 2025}
 
 
+def test_search_can_filter_by_section_name():
+    client = MagicMock()
+    client.query_points.return_value = SimpleNamespace(points=[])
+
+    search.search("risk factors", ticker="NVDA", section_name="Item 1A", client=client)
+
+    query_filter = client.query_points.call_args.kwargs["query_filter"]
+    field_values = {c.key: c.match.value for c in query_filter.must}
+    assert field_values["section_name"] == "Item 1A"
+
+
 def test_search_with_no_filters_passes_none():
     client = MagicMock()
     client.query_points.return_value = SimpleNamespace(points=[])
