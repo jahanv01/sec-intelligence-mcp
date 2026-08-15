@@ -9,6 +9,7 @@ requires-python = ">=3.12"
 dependencies = [
     "beautifulsoup4>=4.15.0",
     "duckdb>=1.5.5",
+    "google-genai>=2.18.1",
     "httpx>=0.28.1",
     "mcp[cli]>=1.0,<2.0",
     "pdfplumber>=0.11.10",
@@ -37,8 +38,10 @@ torch = { index = "pytorch-cpu" }
 [dependency-groups]
 dev = [
     "pytest>=9.1.1",
+    "pytest-asyncio>=1.4.0",
     "ruff>=0.6",
 ]
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]
+asyncio_mode = "auto"
