@@ -108,3 +108,11 @@ data/                   # Gitignored local cache (DuckDB, filing PDFs, Qdrant st
 eval/                   # Test questions + ground truth answers
 scripts/                # One-off dev/test scripts
 ```
+
+
+## Progress so far
+
+**Epic 1 — Foundation.** Got the basic plumbing working: a local Python project set up with
+`uv`, a minimal MCP server that Claude Desktop can actually connect to and call, environment
+config that fails with a clear error if a required key is missing, and Qdrant (the search
+database) running locally via Docker.
