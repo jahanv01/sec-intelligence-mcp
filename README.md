@@ -137,5 +137,8 @@ like "data center revenue growth" finds the right paragraph even if it doesn't u
 words, and every result comes back with a citation (company, section, filing) so we always know
 exactly where an answer came from.
 
-**Next up:** Epic 4 will turn this into something Claude can actually query — MCP tools that
-take a question and return a cited answer.
+**Epic 4 — Tools Claude can actually call.** Wired everything into four MCP tools: one to
+fetch and index a company's filings, one for semantic search, one that answers a specific
+question with citations (using a free Gemini model, instructed to only use the retrieved
+filing text — never general knowledge), and one that generates a structured summary
+(business overview, financials, risks, outlook) of an entire filing.
