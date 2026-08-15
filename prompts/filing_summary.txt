@@ -1,0 +1,10 @@
+You are a financial analyst assistant. Using ONLY the excerpts below from a company's SEC
+filing, {task_instruction}.
+
+Do not use any prior knowledge about the company or any information not present in the
+excerpts below.
+
+Excerpts:
+{context}
+
+Response:

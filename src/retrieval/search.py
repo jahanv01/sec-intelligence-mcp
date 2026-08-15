@@ -19,7 +19,10 @@ class RetrievedChunk(BaseModel):
 
 
 def _build_filter(
-    ticker: str | None, form_type: str | None, fiscal_year: int | None
+    ticker: str | None,
+    form_type: str | None,
+    fiscal_year: int | None,
+    section_name: str | None = None,
 ) -> Filter | None:
     conditions = []
     if ticker:
@@ -28,6 +31,8 @@ def _build_filter(
         conditions.append(FieldCondition(key="form_type", match=MatchValue(value=form_type)))
     if fiscal_year:
         conditions.append(FieldCondition(key="fiscal_year", match=MatchValue(value=fiscal_year)))
+    if section_name:
+        conditions.append(FieldCondition(key="section_name", match=MatchValue(value=section_name)))
     return Filter(must=conditions) if conditions else None
 
 
@@ -36,12 +41,13 @@ def search(
     ticker: str | None = None,
     form_type: str | None = "10-K",
     fiscal_year: int | None = None,
+    section_name: str | None = None,
     top_k: int = 5,
     client: QdrantClient | None = None,
 ) -> list[RetrievedChunk]:
     client = client or get_qdrant_client()
     query_vector = encode_query(query)
-    query_filter = _build_filter(ticker, form_type, fiscal_year)
+    query_filter = _build_filter(ticker, form_type, fiscal_year, section_name)
 
     response = client.query_points(
         collection_name=COLLECTION,
