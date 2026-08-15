@@ -122,3 +122,10 @@ up the company, finds its annual reports (10-Ks), downloads them, strips out all
 formatting down to clean text, and splits that text into its standard labeled sections (Item 1
 Business, Item 1A Risk Factors, Item 7 MD&A, etc.) so we always know which part of the filing
 any piece of text came from.
+
+**Epic 3 — Making it searchable by meaning.** Each filing gets cut into small overlapping
+chunks, and each chunk is converted into a vector (a list of numbers capturing its meaning)
+using a free, local AI model — no paid API needed. Those vectors go into Qdrant, so a question
+like "data center revenue growth" finds the right paragraph even if it doesn't use those exact
+words, and every result comes back with a citation (company, section, filing) so we always know
+exactly where an answer came from.
