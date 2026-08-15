@@ -116,3 +116,9 @@ scripts/                # One-off dev/test scripts
 `uv`, a minimal MCP server that Claude Desktop can actually connect to and call, environment
 config that fails with a clear error if a required key is missing, and Qdrant (the search
 database) running locally via Docker.
+
+**Epic 2 — Fetching filings from SEC.** Given a stock ticker like "NVDA", the system now looks
+up the company, finds its annual reports (10-Ks), downloads them, strips out all the HTML
+formatting down to clean text, and splits that text into its standard labeled sections (Item 1
+Business, Item 1A Risk Factors, Item 7 MD&A, etc.) so we always know which part of the filing
+any piece of text came from.
