@@ -129,3 +129,6 @@ using a free, local AI model — no paid API needed. Those vectors go into Qdran
 like "data center revenue growth" finds the right paragraph even if it doesn't use those exact
 words, and every result comes back with a citation (company, section, filing) so we always know
 exactly where an answer came from.
+
+**Next up:** Epic 4 will turn this into something Claude can actually query — MCP tools that
+take a question and return a cited answer.
