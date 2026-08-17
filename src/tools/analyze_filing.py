@@ -30,8 +30,8 @@ def _confidence(top_score: float) -> str:
 def _format_context(results: list) -> str:
     blocks = []
     for r in results:
-        page = f", page {r.page_number}" if r.page_number else ""
-        blocks.append(f"[{r.section_name}{page}]\n{r.text}")
+        page = f", Page: {r.page_number}" if r.page_number else ""
+        blocks.append(f"[Section: {r.section_name}{page}]\n{r.text}")
     return "\n\n".join(blocks)
 
 
