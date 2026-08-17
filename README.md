@@ -142,3 +142,9 @@ fetch and index a company's filings, one for semantic search, one that answers a
 question with citations (using a free Gemini model, instructed to only use the retrieved
 filing text — never general knowledge), and one that generates a structured summary
 (business overview, financials, risks, outlook) of an entire filing.
+
+**Next up: Epic 5** will make the answers themselves more trustworthy — stricter prompts so the
+model says "not in the filing" instead of guessing, a second search method (exact keyword
+matching) blended in alongside semantic search for queries with specific numbers/terms, and a
+re-ranking pass that double-checks which passages are truly most relevant before answering.
+
