@@ -4,6 +4,7 @@ Requires Qdrant running with NVDA already ingested (see scripts/test_ingest.py o
 scripts/test_tool_ingest_company_filings.py).
 """
 
+import asyncio
 import sys
 from pathlib import Path
 
@@ -12,8 +13,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 from tools.search_filings import search_filings  # noqa: E402
 
 
-def main() -> None:
-    results = search_filings("data center revenue", "NVDA")
+async def main() -> None:
+    results = await search_filings("data center revenue", "NVDA")
     print(f"Got {len(results)} results")
     for r in results:
         print(f"  score={r['relevance_score']:.3f} section={r['section']} text={r['text'][:80]!r}")
@@ -30,4 +31,4 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())

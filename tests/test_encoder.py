@@ -22,8 +22,7 @@ class _FakeModel:
 @pytest.fixture(autouse=True)
 def _fake_model(monkeypatch):
     model = _FakeModel()
-    encoder._get_model.cache_clear()
-    monkeypatch.setattr(encoder, "_get_model", lambda: model)
+    monkeypatch.setattr(encoder, "_model", model)
     return model
 
 

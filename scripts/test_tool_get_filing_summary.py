@@ -3,6 +3,7 @@
 Requires Qdrant running with AAPL already ingested, and a real GEMINI_API_KEY in .env.
 """
 
+import asyncio
 import sys
 from pathlib import Path
 
@@ -11,8 +12,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 from tools.get_filing_summary import get_filing_summary  # noqa: E402
 
 
-def main() -> None:
-    result = get_filing_summary("AAPL", "10-K")
+async def main() -> None:
+    result = await get_filing_summary("AAPL", "10-K")
 
     for field, value in result.items():
         print(f"--- {field} ---")
@@ -37,4 +38,4 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())

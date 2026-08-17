@@ -3,6 +3,7 @@
 Requires Qdrant running with NVDA already ingested, and a real GEMINI_API_KEY in .env.
 """
 
+import asyncio
 import sys
 from pathlib import Path
 
@@ -11,8 +12,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 from tools.analyze_filing import analyze_filing  # noqa: E402
 
 
-def main() -> None:
-    result = analyze_filing("What were NVIDIA's main sources of revenue growth?", "NVDA")
+async def main() -> None:
+    result = await analyze_filing("What were NVIDIA's main sources of revenue growth?", "NVDA")
 
     print("Answer:", result["answer"])
     print("Confidence:", result["confidence"])
@@ -29,4 +30,4 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())

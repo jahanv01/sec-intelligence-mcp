@@ -2,6 +2,8 @@
 
 from pathlib import Path
 
+import anyio
+
 from llm import generate
 from retrieval.search import search as _search
 
@@ -33,27 +35,12 @@ def _format_context(results: list) -> str:
     return "\n\n".join(blocks)
 
 
-def analyze_filing(
+def _analyze_filing_sync(
     question: str,
     ticker: str,
-    form_type: str = "10-K",
-    fiscal_year: int | None = None,
+    form_type: str | None,
+    fiscal_year: int | None,
 ) -> dict:
-    """Answer a question about a company's SEC filing with citations to the source document.
-
-    Uses retrieval-augmented generation — every claim is grounded in the actual filing text.
-
-    Args:
-        question: Specific question about the filing
-        ticker: Company ticker
-        form_type: '10-K' or '10-Q'
-        fiscal_year: Specific year (defaults to most recent)
-
-    Returns:
-        answer: Generated answer grounded in the filing
-        sources: List of passages cited, each with section name, page number, and text excerpt
-        confidence: 'high' / 'medium' / 'low' based on retrieval score distribution
-    """
     results = _search(
         question, ticker=ticker, form_type=form_type, fiscal_year=fiscal_year, top_k=TOP_K
     )
@@ -83,3 +70,30 @@ def analyze_filing(
         ],
         "confidence": _confidence(results[0].score),
     }
+
+
+async def analyze_filing(
+    question: str,
+    ticker: str,
+    form_type: str = "10-K",
+    fiscal_year: int | None = None,
+) -> dict:
+    """Answer a question about a company's SEC filing with citations to the source document.
+
+    Uses retrieval-augmented generation — every claim is grounded in the actual filing text.
+
+    Args:
+        question: Specific question about the filing
+        ticker: Company ticker
+        form_type: '10-K' or '10-Q'
+        fiscal_year: Specific year (defaults to most recent)
+
+    Returns:
+        answer: Generated answer grounded in the filing
+        sources: List of passages cited, each with section name, page number, and text excerpt
+        confidence: 'high' / 'medium' / 'low' based on retrieval score distribution
+    """
+    # Runs off the event loop thread -- see search_filings.py for why.
+    return await anyio.to_thread.run_sync(
+        _analyze_filing_sync, question, ticker, form_type, fiscal_year
+    )

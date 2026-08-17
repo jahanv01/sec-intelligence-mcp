@@ -1,9 +1,34 @@
 """MCP tool: semantic search across ingested filings."""
 
+import anyio
+
 from retrieval.search import search as _search
 
 
-def search_filings(
+def _search_filings_sync(
+    query: str,
+    ticker: str,
+    form_type: str | None,
+    fiscal_year: int | None,
+    top_k: int,
+) -> list[dict]:
+    top_k = max(1, min(top_k, 10))
+    results = _search(
+        query, ticker=ticker, form_type=form_type, fiscal_year=fiscal_year, top_k=top_k
+    )
+    return [
+        {
+            "text": r.text,
+            "section": r.section_name,
+            "page_number": r.page_number,
+            "fiscal_year": r.fiscal_year,
+            "relevance_score": r.score,
+        }
+        for r in results
+    ]
+
+
+async def search_filings(
     query: str,
     ticker: str,
     form_type: str = "10-K",
@@ -24,17 +49,9 @@ def search_filings(
     Returns:
         List of passages with: text, section, page_number, fiscal_year, relevance_score
     """
-    top_k = max(1, min(top_k, 10))
-    results = _search(
-        query, ticker=ticker, form_type=form_type, fiscal_year=fiscal_year, top_k=top_k
+    # Runs off the event loop thread: FastMCP calls sync tool functions directly on the loop
+    # thread, and the encoder's first-use model load (lazy sentence_transformers import) can
+    # be extremely slow -- see encoder.py / config.py for details.
+    return await anyio.to_thread.run_sync(
+        _search_filings_sync, query, ticker, form_type, fiscal_year, top_k
     )
-    return [
-        {
-            "text": r.text,
-            "section": r.section_name,
-            "page_number": r.page_number,
-            "fiscal_year": r.fiscal_year,
-            "relevance_score": r.score,
-        }
-        for r in results
-    ]
