@@ -5,7 +5,7 @@ from pathlib import Path
 import anyio
 
 from llm import generate
-from retrieval.search import search as _search
+from retrieval.hybrid import hybrid_search as _search
 
 _PROMPT_PATH = Path(__file__).resolve().parents[2] / "prompts" / "analyze_filing.txt"
 _PROMPT_TEMPLATE = _PROMPT_PATH.read_text()
@@ -15,6 +15,9 @@ TOP_K = 5
 # Thresholds are calibrated against this project's own retrieval scores: relevant e5 passages
 # scored ~0.85-0.87 and irrelevant ones ~0.67-0.7 in testing (see Issue 3.2/3.4), so 0.8/0.65
 # separate "clearly relevant" from "borderline" from "weak match" with margin either side.
+# Note: hybrid_search's top result can occasionally be a BM25-only match with score=0.0 (no
+# cosine score to report -- see hybrid.py), which this reads as "low confidence" even if the
+# match is actually strong; a known, minor imprecision rather than a wrong result.
 _HIGH_CONFIDENCE_THRESHOLD = 0.8
 _MEDIUM_CONFIDENCE_THRESHOLD = 0.65
 
