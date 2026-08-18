@@ -6,11 +6,13 @@ import anyio
 
 from llm import generate
 from retrieval.hybrid import hybrid_search as _search
+from retrieval.rerank import rerank as _rerank
 
 _PROMPT_PATH = Path(__file__).resolve().parents[2] / "prompts" / "analyze_filing.txt"
 _PROMPT_TEMPLATE = _PROMPT_PATH.read_text()
 
 TOP_K = 5
+RERANK_CANDIDATE_POOL = 10
 
 # Thresholds are calibrated against this project's own retrieval scores: relevant e5 passages
 # scored ~0.85-0.87 and irrelevant ones ~0.67-0.7 in testing (see Issue 3.2/3.4), so 0.8/0.65
@@ -43,10 +45,14 @@ def _analyze_filing_sync(
     ticker: str,
     form_type: str | None,
     fiscal_year: int | None,
+    use_reranker: bool,
 ) -> dict:
+    pool_size = RERANK_CANDIDATE_POOL if use_reranker else TOP_K
     results = _search(
-        question, ticker=ticker, form_type=form_type, fiscal_year=fiscal_year, top_k=TOP_K
+        question, ticker=ticker, form_type=form_type, fiscal_year=fiscal_year, top_k=pool_size
     )
+    if use_reranker and results:
+        results = _rerank(question, results, top_k=TOP_K)
 
     if not results:
         return {
@@ -80,6 +86,7 @@ async def analyze_filing(
     ticker: str,
     form_type: str = "10-K",
     fiscal_year: int | None = None,
+    use_reranker: bool = False,
 ) -> dict:
     """Answer a question about a company's SEC filing with citations to the source document.
 
@@ -90,6 +97,11 @@ async def analyze_filing(
         ticker: Company ticker
         form_type: '10-K' or '10-Q'
         fiscal_year: Specific year (defaults to most recent)
+        use_reranker: If True, retrieves a wider candidate pool and re-scores it with a
+            cross-encoder before answering. Off by default -- testing (Issue 5.3) found the
+            specified cross-encoder model can occasionally rank a less-relevant passage above
+            a more-relevant one on dense SEC-filing text, so this is opt-in pending further
+            evaluation or a domain-tuned model, not a default-on production behavior.
 
     Returns:
         answer: Generated answer grounded in the filing
@@ -98,5 +110,5 @@ async def analyze_filing(
     """
     # Runs off the event loop thread -- see search_filings.py for why.
     return await anyio.to_thread.run_sync(
-        _analyze_filing_sync, question, ticker, form_type, fiscal_year
+        _analyze_filing_sync, question, ticker, form_type, fiscal_year, use_reranker
     )

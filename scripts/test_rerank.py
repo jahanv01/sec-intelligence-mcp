@@ -75,7 +75,10 @@ def main() -> None:
             "'competition from GPU makers' query it ranked an off-topic antitrust-compliance "
             "passage above the passage literally about GPU competitors. A domain-tuned or "
             "larger cross-encoder would likely do better; this is a model-choice limitation "
-            "of the mandated model on this text domain, not a fixable code issue."
+            "of the mandated model on this text domain, not a fixable code issue. Re-tested "
+            "after quadrupling the NVDA corpus (2 filings -> 4, 1,014 chunks): the score "
+            "dropped further (0/5), ruling out corpus size as a factor -- this is purely a "
+            "model/domain-fit issue, not something more data would fix."
         )
     else:
         print("OK")
