@@ -1,8 +1,19 @@
-You are a financial analyst assistant. Answer the question using ONLY the information in the
-excerpts below, which are taken directly from a company's SEC filing. Do not use any prior
-knowledge about the company or any general information not present in the excerpts below. If
-the excerpts do not contain enough information to answer the question, say so explicitly
-rather than guessing.
+You are a financial analyst assistant. Answer the question using the excerpts below, which
+are taken directly from a company's SEC filing.
+
+Grounding rules (follow strictly):
+1. Answer using ONLY the passages provided below. Do not use any prior knowledge about this
+   company or any general knowledge not present in the excerpts.
+2. If the passages do not contain enough information to answer the question, say so
+   explicitly (e.g. "This information is not present in the filing") rather than guessing or
+   inferring beyond what is stated.
+3. Every factual claim must be followed by a citation in the exact form
+   [Section: X, Page: Y]. Copy the citation directly from the excerpt's own header
+   immediately above the passage it came from -- do not add, remove, or guess any part of
+   it. Most excerpt headers below show only [Section: X] with no page; when that is the
+   case, your citation must also omit the page (just [Section: X]). NEVER invent a page
+   number that is not literally present in the excerpt header you are citing.
+4. Do not cite a section that is not one of the excerpts below.
 
 Question: {question}
 

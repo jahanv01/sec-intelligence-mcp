@@ -26,6 +26,22 @@ CREATE TABLE IF NOT EXISTS ingested_filings (
 )
 """
 
+# Mirrors what's stored in Qdrant's payload, keyed by the same point ID, so BM25 (over this
+# table) and dense search (over Qdrant) can be fused by ID via hybrid.py's RRF merge.
+_CREATE_CHUNKS_TABLE_SQL = """
+CREATE TABLE IF NOT EXISTS filing_chunks (
+    chunk_id TEXT PRIMARY KEY,
+    accession_number TEXT NOT NULL,
+    ticker TEXT NOT NULL,
+    form_type TEXT NOT NULL,
+    fiscal_year INTEGER,
+    section_name TEXT NOT NULL,
+    text TEXT NOT NULL,
+    page_number INTEGER,
+    chunk_level TEXT NOT NULL
+)
+"""
+
 
 def get_qdrant_client() -> QdrantClient:
     return QdrantClient(url=QDRANT_URL, api_key=QDRANT_API_KEY)
@@ -90,30 +106,60 @@ def ingest_filing(parsed_filing: ParsedFiling, client: QdrantClient | None = Non
     client = client or get_qdrant_client()
     _ensure_collection(client)
 
-    for batch_start in range(0, total, BATCH_SIZE):
-        batch = chunks[batch_start : batch_start + BATCH_SIZE]
-        vectors = encode_passages([c.text for c in batch])
-        points = [
-            PointStruct(
-                id=_point_id(c.accession_number, batch_start + i),
-                vector=vectors[i].tolist(),
-                payload={
-                    "ticker": c.ticker,
-                    "form_type": c.form_type,
-                    "fiscal_year": c.fiscal_year,
-                    "section_name": c.section_name,
-                    "text": c.text,
-                    "page_number": c.page_number,
-                    "accession_number": c.accession_number,
-                    "chunk_level": c.chunk_level,
-                    "char_start": c.char_start,
-                },
+    DB_PATH.parent.mkdir(parents=True, exist_ok=True)
+    with duckdb.connect(str(DB_PATH)) as conn:
+        conn.execute(_CREATE_CHUNKS_TABLE_SQL)
+
+        for batch_start in range(0, total, BATCH_SIZE):
+            batch = chunks[batch_start : batch_start + BATCH_SIZE]
+            ids = [_point_id(c.accession_number, batch_start + i) for i, c in enumerate(batch)]
+            vectors = encode_passages([c.text for c in batch])
+            points = [
+                PointStruct(
+                    id=ids[i],
+                    vector=vectors[i].tolist(),
+                    payload={
+                        "ticker": c.ticker,
+                        "form_type": c.form_type,
+                        "fiscal_year": c.fiscal_year,
+                        "section_name": c.section_name,
+                        "text": c.text,
+                        "page_number": c.page_number,
+                        "accession_number": c.accession_number,
+                        "chunk_level": c.chunk_level,
+                        "char_start": c.char_start,
+                    },
+                )
+                for i, c in enumerate(batch)
+            ]
+            client.upsert(collection_name=COLLECTION, points=points)
+
+            conn.executemany(
+                """
+                INSERT INTO filing_chunks
+                    (chunk_id, accession_number, ticker, form_type, fiscal_year,
+                     section_name, text, page_number, chunk_level)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ON CONFLICT (chunk_id) DO NOTHING
+                """,
+                [
+                    (
+                        ids[i],
+                        c.accession_number,
+                        c.ticker,
+                        c.form_type,
+                        c.fiscal_year,
+                        c.section_name,
+                        c.text,
+                        c.page_number,
+                        c.chunk_level,
+                    )
+                    for i, c in enumerate(batch)
+                ],
             )
-            for i, c in enumerate(batch)
-        ]
-        client.upsert(collection_name=COLLECTION, points=points)
-        done = min(batch_start + BATCH_SIZE, total)
-        print(f"Ingesting {label}... {done}/{total} chunks")
+
+            done = min(batch_start + BATCH_SIZE, total)
+            print(f"Ingesting {label}... {done}/{total} chunks")
 
     _mark_ingested(parsed_filing.accession_number, total)
     return total

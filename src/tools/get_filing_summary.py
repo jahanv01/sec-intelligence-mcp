@@ -2,6 +2,7 @@
 
 from pathlib import Path
 
+import anyio
 import duckdb
 
 from edgar.lookup import get_company_name
@@ -89,22 +90,11 @@ def _extract_field(
     return generate(prompt)
 
 
-def get_filing_summary(
+def _get_filing_summary_sync(
     ticker: str,
-    form_type: str = "10-K",
-    fiscal_year: int | None = None,
+    form_type: str,
+    fiscal_year: int | None,
 ) -> dict:
-    """Generate a structured summary of a SEC filing covering key business, financial, and
-    risk information.
-
-    Returns:
-        company: Company name and fiscal year
-        business_overview: What the company does (from Item 1)
-        key_financials: Revenue, net income, key metrics mentioned (from Item 8)
-        growth_discussion: Management's view on performance (from Item 7 MD&A)
-        top_risks: Top 5 risk factors (from Item 1A)
-        outlook: Forward-looking statements and guidance if present
-    """
     ticker = ticker.upper()
     if fiscal_year is None:
         fiscal_year = _resolve_fiscal_year(ticker, form_type)
@@ -123,3 +113,23 @@ def get_filing_summary(
     }
 
     return {"company": f"{company_name} (FY{fiscal_year})", **fields}
+
+
+async def get_filing_summary(
+    ticker: str,
+    form_type: str = "10-K",
+    fiscal_year: int | None = None,
+) -> dict:
+    """Generate a structured summary of a SEC filing covering key business, financial, and
+    risk information.
+
+    Returns:
+        company: Company name and fiscal year
+        business_overview: What the company does (from Item 1)
+        key_financials: Revenue, net income, key metrics mentioned (from Item 8)
+        growth_discussion: Management's view on performance (from Item 7 MD&A)
+        top_risks: Top 5 risk factors (from Item 1A)
+        outlook: Forward-looking statements and guidance if present
+    """
+    # Runs off the event loop thread -- see search_filings.py for why.
+    return await anyio.to_thread.run_sync(_get_filing_summary_sync, ticker, form_type, fiscal_year)

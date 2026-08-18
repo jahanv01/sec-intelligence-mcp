@@ -6,6 +6,7 @@ from tools import get_filing_summary as tool
 
 def _fake_result(section: str) -> RetrievedChunk:
     return RetrievedChunk(
+        chunk_id=f"fake-{section}",
         text=f"Some {section} text.",
         section_name=section,
         page_number=None,
@@ -24,18 +25,18 @@ def _mock_pipeline(monkeypatch):
     monkeypatch.setattr(tool, "generate", lambda prompt: "generated summary text")
 
 
-def test_no_ingested_filing_returns_error(monkeypatch):
+async def test_no_ingested_filing_returns_error(monkeypatch):
     monkeypatch.setattr(tool, "_resolve_fiscal_year", lambda ticker, form_type: None)
-    result = tool.get_filing_summary("ZZZZ")
+    result = await tool.get_filing_summary("ZZZZ")
     assert "error" in result
     assert "ingest_company_filings" in result["error"]
 
 
-def test_returns_all_six_fields_non_empty(monkeypatch):
+async def test_returns_all_six_fields_non_empty(monkeypatch):
     _mock_pipeline(monkeypatch)
     monkeypatch.setattr(tool, "_resolve_fiscal_year", lambda ticker, form_type: 2025)
 
-    result = tool.get_filing_summary("NVDA")
+    result = await tool.get_filing_summary("NVDA")
 
     expected_keys = {
         "company",
@@ -52,7 +53,7 @@ def test_returns_all_six_fields_non_empty(monkeypatch):
     assert "2025" in result["company"]
 
 
-def test_explicit_fiscal_year_skips_resolution(monkeypatch):
+async def test_explicit_fiscal_year_skips_resolution(monkeypatch):
     _mock_pipeline(monkeypatch)
 
     def fail_if_called(ticker, form_type):
@@ -60,11 +61,11 @@ def test_explicit_fiscal_year_skips_resolution(monkeypatch):
 
     monkeypatch.setattr(tool, "_resolve_fiscal_year", fail_if_called)
 
-    result = tool.get_filing_summary("NVDA", fiscal_year=2024)
+    result = await tool.get_filing_summary("NVDA", fiscal_year=2024)
     assert "2024" in result["company"]
 
 
-def test_each_field_queries_its_own_section(monkeypatch):
+async def test_each_field_queries_its_own_section(monkeypatch):
     monkeypatch.setattr(tool, "get_company_name", lambda ticker: "NVIDIA CORP")
     monkeypatch.setattr(tool, "_resolve_fiscal_year", lambda ticker, form_type: 2025)
     monkeypatch.setattr(tool, "generate", lambda prompt: "text")
@@ -76,6 +77,6 @@ def test_each_field_queries_its_own_section(monkeypatch):
         return [_fake_result(section_name)]
 
     monkeypatch.setattr(tool, "_search", fake_search)
-    tool.get_filing_summary("NVDA")
+    await tool.get_filing_summary("NVDA")
 
     assert captured_sections == ["Item 1", "Item 8", "Item 7", "Item 1A", "Item 7"]

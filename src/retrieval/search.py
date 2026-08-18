@@ -9,6 +9,7 @@ from retrieval.ingest import COLLECTION, get_qdrant_client
 
 
 class RetrievedChunk(BaseModel):
+    chunk_id: str
     text: str
     section_name: str
     page_number: int | None
@@ -58,6 +59,7 @@ def search(
 
     return [
         RetrievedChunk(
+            chunk_id=str(p.id),
             text=p.payload["text"],
             section_name=p.payload["section_name"],
             page_number=p.payload.get("page_number"),
