@@ -143,8 +143,25 @@ question with citations (using a free Gemini model, instructed to only use the r
 filing text — never general knowledge), and one that generates a structured summary
 (business overview, financials, risks, outlook) of an entire filing.
 
-**Next up: Epic 5** will make the answers themselves more trustworthy — stricter prompts so the
-model says "not in the filing" instead of guessing, a second search method (exact keyword
-matching) blended in alongside semantic search for queries with specific numbers/terms, and a
-re-ranking pass that double-checks which passages are truly most relevant before answering.
+**Epic 5 — Making answers more trustworthy.** Tightened the answer-generation prompt so the
+model explicitly refuses to guess when a filing doesn't contain the answer, and cites every
+claim back to its exact section — this genuinely works, verified live (asking about NVIDIA's
+non-existent "Mars operations" correctly returns "not present in the filing" instead of an
+invented answer). Also implemented a second search method (BM25 exact-keyword matching,
+blended with the existing semantic search) and a re-ranking step, both tested against real
+data rather than assumed to work.
 
+Honest result: the two acceptance benchmarks weren't met as originally written, and the
+investigation into *why* turned out to be the more useful finding. Quadrupling the test
+corpus made both hybrid retrieval and re-ranking perform *worse* on the strict pass/fail
+metric — which disproved an initial "not enough data" theory rather than confirming it. The
+real explanation: the benchmark's accounting-term queries are formulaic line items where
+keyword search and semantic search already agree, leaving no ambiguity for hybrid search to
+resolve — its actual value showed up on a genuinely ambiguous query where semantic search
+drifted toward the wrong (but related) passage. Re-ranking's shortfall turned out to be a
+model-fit issue (the specified cross-encoder was trained on web search, not SEC filings), not
+something more data would fix. Hybrid search is used by default since it never hurt in
+testing; re-ranking is implemented but kept opt-in (`use_reranker`) since it occasionally made
+results worse with this specific model.
+
+**Next up: Epic 6** — TBD.
