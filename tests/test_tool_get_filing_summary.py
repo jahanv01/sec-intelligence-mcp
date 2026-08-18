@@ -6,6 +6,7 @@ from tools import get_filing_summary as tool
 
 def _fake_result(section: str) -> RetrievedChunk:
     return RetrievedChunk(
+        chunk_id=f"fake-{section}",
         text=f"Some {section} text.",
         section_name=section,
         page_number=None,

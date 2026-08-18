@@ -6,6 +6,7 @@ from tools import search_filings as tool
 
 def _fake_result(score: float) -> RetrievedChunk:
     return RetrievedChunk(
+        chunk_id="fake-chunk-id",
         text="Data center revenue grew significantly.",
         section_name="Item 7",
         page_number=None,

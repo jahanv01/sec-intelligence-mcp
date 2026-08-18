@@ -24,7 +24,7 @@ def _fake_point(score: float, **payload_overrides) -> SimpleNamespace:
         "fiscal_year": 2025,
         **payload_overrides,
     }
-    return SimpleNamespace(payload=payload, score=score)
+    return SimpleNamespace(id="fake-chunk-id", payload=payload, score=score)
 
 
 def test_search_maps_points_to_retrieved_chunks():

@@ -10,6 +10,7 @@ def _fake_result(
     score: float, section: str = "Item 7", text: str = "Revenue grew."
 ) -> RetrievedChunk:
     return RetrievedChunk(
+        chunk_id="fake-chunk-id",
         text=text,
         section_name=section,
         page_number=42,
