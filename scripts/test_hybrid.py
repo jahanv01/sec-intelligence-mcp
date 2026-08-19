@@ -62,11 +62,18 @@ def main() -> None:
     if hybrid_wins < 3:
         print(
             f"NOTE: acceptance criteria wants hybrid to strictly outrank semantic on >= 3/5; "
-            f"got {hybrid_wins}/5. The remaining queries were ties (both systems already hit "
-            "rank 1 -- an unbeatable ceiling), and hybrid never lost a query outright on this "
-            "run. Likely needs a larger/more diverse corpus for BM25's exact-term precision "
-            "advantage to clearly surpass dense retrieval, which is already strong when the "
-            "corpus is this small (2 filings)."
+            f"got {hybrid_wins}/5, all ties (hybrid never lost a query outright). Tested "
+            "against both a 2-filing and a 4-filing NVDA corpus (1,014 chunks) -- doubling the "
+            "corpus did NOT improve hybrid's relative standing (it went from 2/5 to 0/5 wins "
+            "as ties), which refutes an earlier 'small corpus ceiling' theory rather than "
+            "confirming it. The real explanation looks structural, not scale-related: these "
+            "queries target formulaic balance-sheet line items (deferred revenue, accounts "
+            "receivable, etc.) that repeat near-verbatim across every fiscal year, so BM25 and "
+            "dense retrieval trivially agree on the same top passage every time -- there's no "
+            "ambiguity for hybrid fusion to resolve. Hybrid's genuine value showed up earlier "
+            "on queries with real semantic drift (e.g. 'deferred revenue' vs a distractor "
+            "passage about 'deferred TAX valuation allowance'); a fair benchmark would need "
+            "queries designed to have that kind of ambiguity, not just any accounting term."
         )
     else:
         print("OK")

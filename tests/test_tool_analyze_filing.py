@@ -77,3 +77,30 @@ async def test_confidence_thresholds(monkeypatch, score, expected):
 
     result = await tool.analyze_filing("q", "NVDA")
     assert result["confidence"] == expected
+
+
+async def test_reranker_off_by_default_skips_rerank_call(monkeypatch):
+    called = []
+    monkeypatch.setattr(tool, "_search", lambda *a, **k: [_fake_result(0.85)])
+    monkeypatch.setattr(tool, "_rerank", lambda *a, **k: called.append(1) or [])
+    monkeypatch.setattr(tool, "generate", lambda prompt: "answer")
+
+    await tool.analyze_filing("q", "NVDA")
+
+    assert not called
+
+
+async def test_reranker_on_requests_wider_pool_and_calls_rerank(monkeypatch):
+    search_calls = {}
+
+    def fake_search(question, ticker, form_type, fiscal_year, top_k):
+        search_calls["top_k"] = top_k
+        return [_fake_result(0.85)]
+
+    monkeypatch.setattr(tool, "_search", fake_search)
+    monkeypatch.setattr(tool, "_rerank", lambda query, chunks, top_k: chunks[:top_k])
+    monkeypatch.setattr(tool, "generate", lambda prompt: "answer")
+
+    await tool.analyze_filing("q", "NVDA", use_reranker=True)
+
+    assert search_calls["top_k"] == tool.RERANK_CANDIDATE_POOL

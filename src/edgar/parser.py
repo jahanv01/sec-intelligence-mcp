@@ -33,7 +33,7 @@ class ParsedFiling(BaseModel):
     page_count: int | None = None
 
 
-def _extract_html_text(content: bytes) -> str:
+def extract_html_text(content: bytes) -> str:
     soup = BeautifulSoup(content, "html.parser")
     for tag in soup(["script", "style"]):
         tag.decompose()
@@ -58,7 +58,7 @@ def fetch_and_parse_filing(filing: Filing) -> ParsedFiling:
     if filing.primary_doc_url.lower().endswith(".pdf"):
         raw_text, page_count = _extract_pdf_text(response.content)
     else:
-        raw_text, page_count = _extract_html_text(response.content), None
+        raw_text, page_count = extract_html_text(response.content), None
 
     parsed = ParsedFiling(
         accession_number=filing.accession_number,

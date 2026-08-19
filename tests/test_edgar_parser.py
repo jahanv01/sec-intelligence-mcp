@@ -32,7 +32,7 @@ def _isolated_db(tmp_path, monkeypatch):
 
 
 def test_extract_html_text_strips_tags_and_script_style():
-    text = parser._extract_html_text(FAKE_HTML)
+    text = parser.extract_html_text(FAKE_HTML)
     assert "Apple Inc." in text
     assert "smartphones" in text
     assert "alert(1)" not in text
