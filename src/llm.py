@@ -15,3 +15,14 @@ def _get_client() -> genai.Client:
 def generate(prompt: str) -> str:
     response = _get_client().models.generate_content(model=GEMINI_MODEL, contents=prompt)
     return response.text
+
+
+def strip_json_fences(text: str) -> str:
+    """Strips a ```json ... ``` (or bare ```...```) markdown fence some LLMs wrap JSON in."""
+    text = text.strip()
+    if text.startswith("```"):
+        text = text.split("\n", 1)[1] if "\n" in text else ""
+        text = text.rsplit("```", 1)[0].strip()
+        if text.lower().startswith("json"):
+            text = text[4:].strip()
+    return text

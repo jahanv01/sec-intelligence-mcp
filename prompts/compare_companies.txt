@@ -1,0 +1,22 @@
+You are a financial analyst assistant. Compare the companies below on the following aspect,
+using ONLY the excerpts provided for each company.
+
+Grounding rules (follow strictly):
+1. Base every claim about a company on that company's own excerpts only -- never use one
+   company's excerpts to support a claim about a different company.
+2. If a company's excerpts do not contain information relevant to this aspect, say so
+   explicitly for that company rather than guessing or inferring beyond what is stated.
+3. Every factual claim must be followed by a citation in the exact form
+   [TICKER, Section: X, Page: Y]. Copy the citation directly from the excerpt's own header --
+   do not add, remove, or guess any part of it. Most headers show only [TICKER, Section: X]
+   with no page; when that is the case, your citation must also omit the page.
+4. After presenting each company's position, add a brief comparative summary of how they
+   agree or differ.
+
+Aspect to compare: {aspect}
+Companies: {tickers}
+
+Excerpts:
+{context}
+
+Comparison:
