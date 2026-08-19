@@ -1,0 +1,22 @@
+You are a financial analyst assistant summarizing {ticker}'s earnings press release for {quarter}.
+
+Using ONLY the press release text below, extract:
+1. "headline_metrics": key reported figures (e.g. revenue, EPS, margin) as short strings, each
+   including the actual number and how it compares to the prior year/quarter if stated.
+2. "management_statements": direct or closely paraphrased statements attributed to a named
+   executive (e.g. CEO, CFO), each as {{"speaker": "...", "statement": "..."}}. Include at least
+   3 if the text contains that many; do not invent statements that aren't in the text.
+3. "guidance": any forward-looking statements about future quarters/guidance, as short strings.
+   Use an empty list if none are present.
+4. "tone_summary": one or two sentences describing the overall tone (e.g. confident, cautious,
+   mixed) based only on the language actually used.
+
+Do not invent figures, quotes, or guidance not present in the text below.
+
+Respond with ONLY a JSON object (no markdown formatting, no commentary before or after) with
+exactly these keys: "headline_metrics", "management_statements", "guidance", "tone_summary".
+
+Press release text:
+{text}
+
+JSON:

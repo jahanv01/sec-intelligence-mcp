@@ -3,11 +3,10 @@
 from pathlib import Path
 
 import anyio
-import duckdb
 
 from edgar.lookup import get_company_name
 from llm import generate
-from retrieval.ingest import DB_PATH
+from retrieval.ingest import get_most_recent_ingested_fiscal_year
 from retrieval.search import search as _search
 
 _PROMPT_PATH = Path(__file__).resolve().parents[2] / "prompts" / "filing_summary.txt"
@@ -52,18 +51,7 @@ _FIELDS: dict[str, tuple[str, str, int, str]] = {
 
 
 def _resolve_fiscal_year(ticker: str, form_type: str) -> int | None:
-    """Most recent fiscal year already ingested for this ticker/form_type, if any."""
-    with duckdb.connect(str(DB_PATH)) as conn:
-        row = conn.execute(
-            """
-            SELECT f.filing_date FROM filings f
-            JOIN ingested_filings i ON f.accession_number = i.accession_number
-            WHERE f.ticker = ? AND f.form_type = ?
-            ORDER BY f.filing_date DESC LIMIT 1
-            """,
-            [ticker.upper(), form_type],
-        ).fetchone()
-    return int(row[0][:4]) if row else None
+    return get_most_recent_ingested_fiscal_year(ticker, form_type)
 
 
 def _extract_field(
