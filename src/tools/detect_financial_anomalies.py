@@ -5,7 +5,7 @@ from pathlib import Path
 
 import anyio
 
-from llm import generate
+from llm import generate, strip_json_fences
 from retrieval.ingest import get_full_section_text, get_ingested_fiscal_years
 
 _PROMPT_PATH = Path(__file__).resolve().parents[2] / "prompts" / "detect_anomalies.txt"
@@ -13,16 +13,6 @@ _PROMPT_TEMPLATE = _PROMPT_PATH.read_text()
 
 # MD&A (financial performance narrative) and Risk Factors (where new risks first appear).
 SECTIONS_TO_COMPARE = ["Item 7", "Item 1A"]
-
-
-def _strip_json_fences(text: str) -> str:
-    text = text.strip()
-    if text.startswith("```"):
-        text = text.split("\n", 1)[1] if "\n" in text else ""
-        text = text.rsplit("```", 1)[0].strip()
-        if text.lower().startswith("json"):
-            text = text[4:].strip()
-    return text
 
 
 def _compare_year_pair(ticker: str, form_type: str, year_a: int, year_b: int) -> list[dict]:
@@ -44,7 +34,7 @@ def _compare_year_pair(ticker: str, form_type: str, year_a: int, year_b: int) ->
         raw = generate(prompt)
 
         try:
-            parsed = json.loads(_strip_json_fences(raw))
+            parsed = json.loads(strip_json_fences(raw))
             if not isinstance(parsed, list):
                 raise ValueError("expected a JSON array")
         except (json.JSONDecodeError, ValueError):
