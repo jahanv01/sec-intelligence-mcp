@@ -47,6 +47,47 @@ def get_qdrant_client() -> QdrantClient:
     return QdrantClient(url=QDRANT_URL, api_key=QDRANT_API_KEY)
 
 
+def get_ingested_fiscal_years(ticker: str, form_type: str = "10-K") -> list[int]:
+    """Fiscal years already ingested for this ticker/form_type, most recent first."""
+    with duckdb.connect(str(DB_PATH)) as conn:
+        conn.execute(_CREATE_TABLE_SQL)
+        rows = conn.execute(
+            """
+            SELECT DISTINCT f.filing_date FROM filings f
+            JOIN ingested_filings i ON f.accession_number = i.accession_number
+            WHERE f.ticker = ? AND f.form_type = ?
+            ORDER BY f.filing_date DESC
+            """,
+            [ticker.upper(), form_type],
+        ).fetchall()
+    return [int(r[0][:4]) for r in rows]
+
+
+def get_most_recent_ingested_fiscal_year(ticker: str, form_type: str = "10-K") -> int | None:
+    years = get_ingested_fiscal_years(ticker, form_type)
+    return years[0] if years else None
+
+
+def get_full_section_text(
+    ticker: str, fiscal_year: int, section_name: str, form_type: str = "10-K"
+) -> str | None:
+    """The complete text of one 10-K section (e.g. "Item 7") for a specific ticker/year, from
+    the section-level chunk chunk_filing() already produces -- avoids re-fetching/re-parsing
+    the filing just to get a section's full text."""
+    with duckdb.connect(str(DB_PATH)) as conn:
+        conn.execute(_CREATE_CHUNKS_TABLE_SQL)
+        row = conn.execute(
+            """
+            SELECT text FROM filing_chunks
+            WHERE ticker = ? AND fiscal_year = ? AND form_type = ?
+              AND section_name = ? AND chunk_level = 'section'
+            LIMIT 1
+            """,
+            [ticker.upper(), fiscal_year, form_type, section_name],
+        ).fetchone()
+    return row[0] if row else None
+
+
 def _ensure_collection(client: QdrantClient) -> None:
     if not client.collection_exists(COLLECTION):
         client.create_collection(
