@@ -8,14 +8,24 @@ authors = [
 requires-python = ">=3.12"
 dependencies = [
     "beautifulsoup4>=4.15.0",
+    "datasets>=5.0.1",
     "duckdb>=1.5.5",
     "google-genai>=2.18.1",
     "httpx>=0.28.1",
+    # ragas (as of 0.2.x through 0.4.x) still hard-imports
+    # langchain_community.chat_models.vertexai, a module that only exists on the pre-1.0
+    # langchain-community/langchain-core line. Newer langchain-google-genai releases require
+    # langchain-core>=1.0, which conflicts with that. This exact combo is the newest one that
+    # resolves and actually imports/runs cleanly -- verified against a real Gemini call.
+    # Do not `uv add --upgrade` these three without re-testing the ragas+Gemini import path.
+    "langchain-community==0.3.27",
+    "langchain-google-genai==2.1.9",
     "mcp[cli]>=1.0,<2.0",
     "pdfplumber>=0.11.10",
     "pydantic>=2.13.4",
     "python-dotenv>=1.0",
     "qdrant-client>=1.19.0",
+    "ragas==0.2.15",  # pinned together with langchain-community/langchain-google-genai above
     "rank-bm25>=0.2.2",
     "sentence-transformers>=5.7.0",
     "tiktoken>=0.13.0",
