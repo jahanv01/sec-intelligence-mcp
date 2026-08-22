@@ -2840,6 +2840,7 @@ dependencies = [
     { name = "ragas" },
     { name = "rank-bm25" },
     { name = "sentence-transformers" },
+    { name = "tenacity" },
     { name = "tiktoken" },
     { name = "torch", version = "2.13.0", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "sys_platform == 'darwin'" },
     { name = "torch", version = "2.13.0+cpu", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "sys_platform != 'darwin'" },
@@ -2869,6 +2870,7 @@ requires-dist = [
     { name = "ragas", specifier = "==0.2.15" },
     { name = "rank-bm25", specifier = ">=0.2.2" },
     { name = "sentence-transformers", specifier = ">=5.7.0" },
+    { name = "tenacity", specifier = ">=9.1.4" },
     { name = "tiktoken", specifier = ">=0.13.0" },
     { name = "torch", specifier = ">=2.13.0", index = "https://download.pytorch.org/whl/cpu" },
 ]

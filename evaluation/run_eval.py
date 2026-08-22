@@ -80,7 +80,9 @@ async def _run(mode_name: str, limit: int | None) -> dict:
     metrics = {
         "faithfulness": Faithfulness(llm=llm),
         "answer_correctness": AnswerCorrectness(
-            llm=llm, embeddings=embeddings, answer_similarity=AnswerSimilarity(embeddings=embeddings)
+            llm=llm,
+            embeddings=embeddings,
+            answer_similarity=AnswerSimilarity(embeddings=embeddings),
         ),
         "context_recall": LLMContextRecall(llm=llm),
     }
