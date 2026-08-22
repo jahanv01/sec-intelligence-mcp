@@ -5,6 +5,14 @@ Usage:
     python evaluation/run_eval.py --output eval/results/2026-08-20.json
     python evaluation/run_eval.py --output eval/results/v1_semantic.json --retrieval-mode semantic
     python evaluation/run_eval.py --output eval/results/smoke.json --limit 5
+
+Running in batches (e.g. to spread a run across the free-tier rate limit over multiple
+sessions) -- each batch writes its own file, then merge_results.py combines them:
+    python evaluation/run_eval.py --output eval/results/batch1.json --offset 0 --limit 20
+    python evaluation/run_eval.py --output eval/results/batch2.json --offset 20 --limit 20
+    python evaluation/run_eval.py --output eval/results/batch3.json --offset 40
+    python evaluation/merge_results.py eval/results/batch1.json eval/results/batch2.json \
+        eval/results/batch3.json --output eval/results/2026-08-20.json
 """
 
 import argparse
@@ -35,8 +43,9 @@ RETRIEVAL_MODES = {
 }
 
 
-def _load_questions(limit: int | None) -> list[dict]:
+def _load_questions(offset: int, limit: int | None) -> list[dict]:
     questions = [json.loads(line) for line in QUESTIONS_PATH.read_text().splitlines() if line]
+    questions = questions[offset:]
     return questions[:limit] if limit else questions
 
 
@@ -72,26 +81,7 @@ async def _score_question(q: dict, mode: dict, metrics: dict) -> dict:
     }
 
 
-async def _run(mode_name: str, limit: int | None) -> dict:
-    questions = _load_questions(limit)
-    mode = RETRIEVAL_MODES[mode_name]
-    llm = get_judge_llm()
-    embeddings = get_judge_embeddings()
-    metrics = {
-        "faithfulness": Faithfulness(llm=llm),
-        "answer_correctness": AnswerCorrectness(
-            llm=llm,
-            embeddings=embeddings,
-            answer_similarity=AnswerSimilarity(embeddings=embeddings),
-        ),
-        "context_recall": LLMContextRecall(llm=llm),
-    }
-
-    per_question = []
-    for i, q in enumerate(questions, 1):
-        print(f"[{i}/{len(questions)}] {q['ticker']}: {q['question'][:60]}...", flush=True)
-        per_question.append(await _score_question(q, mode, metrics))
-
+def _build_report(mode_name: str, per_question: list[dict]) -> dict:
     def avg(key: str) -> float:
         return sum(r[key] for r in per_question) / len(per_question)
 
@@ -110,6 +100,33 @@ async def _run(mode_name: str, limit: int | None) -> dict:
     }
 
 
+async def _run(mode_name: str, offset: int, limit: int | None, output_path: Path) -> dict:
+    questions = _load_questions(offset, limit)
+    mode = RETRIEVAL_MODES[mode_name]
+    llm = get_judge_llm()
+    embeddings = get_judge_embeddings()
+    metrics = {
+        "faithfulness": Faithfulness(llm=llm),
+        "answer_correctness": AnswerCorrectness(
+            llm=llm,
+            embeddings=embeddings,
+            answer_similarity=AnswerSimilarity(embeddings=embeddings),
+        ),
+        "context_recall": LLMContextRecall(llm=llm),
+    }
+
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    per_question = []
+    for i, q in enumerate(questions, 1):
+        print(f"[{i}/{len(questions)}] {q['ticker']}: {q['question'][:60]}...", flush=True)
+        per_question.append(await _score_question(q, mode, metrics))
+        # Write after every question, not just at the end -- a batch that dies partway through
+        # (rate limits, network blips) still leaves usable partial results on disk.
+        output_path.write_text(json.dumps(_build_report(mode_name, per_question), indent=2))
+
+    return _build_report(mode_name, per_question)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", required=True, help="Path to write the JSON report to")
@@ -120,15 +137,15 @@ def main() -> None:
         help="Which retrieval strategy analyze_filing should use for this run",
     )
     parser.add_argument(
-        "--limit", type=int, default=None, help="Only run the first N questions (for smoke tests)"
+        "--limit", type=int, default=None, help="Only run N questions starting at --offset"
+    )
+    parser.add_argument(
+        "--offset", type=int, default=0, help="Skip the first N questions (for running in batches)"
     )
     args = parser.parse_args()
 
-    report = asyncio.run(_run(args.retrieval_mode, args.limit))
-
     output_path = Path(args.output)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    output_path.write_text(json.dumps(report, indent=2))
+    report = asyncio.run(_run(args.retrieval_mode, args.offset, args.limit, output_path))
 
     s = report["summary"]
     print(
