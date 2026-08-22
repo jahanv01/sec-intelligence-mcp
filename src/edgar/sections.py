@@ -22,10 +22,24 @@ CANONICAL_ITEMS = [
 ]  # fmt: skip
 _CANONICAL_ITEMS_SET = set(CANONICAL_ITEMS)
 
+# [ \t] alone misses real headings some filers render with a non-breaking space (HTML &nbsp;,
+# \xa0 after tag-stripping) between "Item" and the number -- e.g. Amazon's actual "Item 1A"
+# heading, and NVIDIA's actual "Item 8" heading. Without \xa0 here, those real headings are
+# invisible to this regex and only each item's Table-of-Contents mention (which uses an
+# ordinary space) gets matched.
 _ITEM_LINE_RE = re.compile(
-    r"^[ \t]*ITEM[ \t]+(\d{1,2}[A-C]?)\b[.:\-–—]?",
+    r"^[ \t\xa0]*ITEM[ \t\xa0]+(\d{1,2}[A-C]?)\b[.:\-–—]?",
     re.IGNORECASE | re.MULTILINE,
 )
+
+# A 10-K's TOC lists every item in one dense run -- entries only tens to a couple hundred chars
+# apart ("Item N. Title .... page"). The real document body follows a much larger gap (cover
+# page boilerplate, forward-looking-statements language, signature pages, etc.) before the
+# first real Item heading. Measured across every filer in this project's test corpus (AAPL,
+# AMD, AMZN, GOOGL, MSFT, NVDA): TOC-internal gaps are consistently under 130 chars, and the
+# gap out of the TOC is consistently 10,000+ chars -- 800 sits safely between the two with
+# margin either side.
+_TOC_GAP_THRESHOLD = 800
 
 _COMPANY_NAME_RE = re.compile(
     r"([A-Z][A-Za-z0-9&.,'\-\s]{1,80}?)\s*\n\s*\(Exact [Nn]ame of [Rr]egistrant"
@@ -73,10 +87,10 @@ class FilingMetadata(BaseModel):
     auditor: str | None = None
 
 
-def _filter_monotonic(last_occurrence: dict[str, int]) -> list[tuple[str, int]]:
-    """Drop any item whose last occurrence sits before an earlier-numbered item's."""
+def _filter_monotonic(positions: dict[str, int]) -> list[tuple[str, int]]:
+    """Drop any item whose position sits before an earlier-numbered item's."""
     rank = {key: i for i, key in enumerate(CANONICAL_ITEMS)}
-    by_canonical_order = sorted(last_occurrence.items(), key=lambda kv: rank[kv[0]])
+    by_canonical_order = sorted(positions.items(), key=lambda kv: rank[kv[0]])
     kept: list[tuple[str, int]] = []
     max_pos = -1
     for item_key, pos in by_canonical_order:
@@ -86,28 +100,58 @@ def _filter_monotonic(last_occurrence: dict[str, int]) -> list[tuple[str, int]]:
     return kept
 
 
+def _find_toc_boundary(matches: list[tuple[int, str]]) -> int:
+    """Returns the char offset of the last match still inside the dense TOC run.
+
+    Walks matches in document order and stops at the first gap larger than
+    _TOC_GAP_THRESHOLD -- see that constant's docstring for why this reliably separates the
+    TOC from the real body without a fixed TOC-length assumption.
+    """
+    boundary = matches[0][0]
+    for i in range(1, len(matches)):
+        if matches[i][0] - matches[i - 1][0] > _TOC_GAP_THRESHOLD:
+            break
+        boundary = matches[i][0]
+    return boundary
+
+
 def detect_sections(raw_text: str) -> list[Section]:
     """Find 10-K Item section boundaries in flattened filing text.
 
     A naive scan for "Item N" headers also matches the Table of Contents, which lists every
-    item near the top of the document as plain text. Since the TOC structurally precedes the
-    real document body, keeping only the LAST occurrence of each item key reliably skips it
-    without needing a tuned length/gap threshold (which would misclassify genuinely short
-    sections like Item 1B or Item 6 "[Reserved]" as TOC noise).
+    item near the top of the document as plain text -- and, on some filers (seen on Microsoft's
+    10-K), a running header/footer repeating "Item N" on every printed page throughout that
+    item's entire real section. Neither "first occurrence" nor "last occurrence" alone survives
+    both: first occurrence hits the TOC, last occurrence on a running-header filer lands near
+    the *end* of the real section instead of its start. Instead, this locates where the TOC's
+    dense run of entries ends (_find_toc_boundary) and takes the first occurrence of each item
+    strictly after that point, falling back to the item's last occurrence anywhere in the
+    document if it never reappears post-TOC (e.g. an item whose only real mention happens to
+    be malformed) so a section is never dropped outright.
     """
     if not raw_text:
         return []
 
-    last_occurrence: dict[str, int] = {}
-    for m in _ITEM_LINE_RE.finditer(raw_text):
-        item_key = m.group(1).upper()
-        if item_key in _CANONICAL_ITEMS_SET:
-            last_occurrence[item_key] = m.start()
-
-    if not last_occurrence:
+    matches = [
+        (m.start(), m.group(1).upper())
+        for m in _ITEM_LINE_RE.finditer(raw_text)
+        if m.group(1).upper() in _CANONICAL_ITEMS_SET
+    ]
+    if not matches:
         return []
 
-    ordered = _filter_monotonic(last_occurrence)
+    toc_boundary = _find_toc_boundary(matches)
+
+    last_overall: dict[str, int] = {}
+    first_after_toc: dict[str, int] = {}
+    for pos, item_key in matches:
+        last_overall[item_key] = pos
+        if pos > toc_boundary and item_key not in first_after_toc:
+            first_after_toc[item_key] = pos
+
+    positions = {**last_overall, **first_after_toc}
+
+    ordered = _filter_monotonic(positions)
     ordered.sort(key=lambda kv: kv[1])
 
     sections: list[Section] = []

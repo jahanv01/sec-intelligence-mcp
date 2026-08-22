@@ -16,6 +16,7 @@ from edgar.parser import ParsedFiling
         ("Item 7A—Quantitative Disclosures", "7A"),
         ("Item 7", "7"),
         ("Item 10", "10"),
+        ("Item\xa01A. Risk Factors", "1A"),  # non-breaking space, e.g. real Amazon headings
     ],
 )
 def test_item_regex_matches_punctuation_variants(line, expected_key):
@@ -82,6 +83,71 @@ def test_section_offsets_are_consistent():
         assert s.char_end - s.char_start == len(s.section_text)
     for a, b in zip(result, result[1:], strict=False):
         assert a.char_end <= b.char_start
+
+
+def _build_nbsp_fixture() -> str:
+    """TOC uses ordinary spaces; the real heading uses \xa0 (HTML &nbsp;) -- reproduces the bug
+    found on Amazon's real 10-K, where the old regex only matched the TOC line."""
+    toc = "\n".join([f"Item {k}. Title {'x' * 20} {k}" for k in ("1", "1A", "1B", "7", "7A", "8")])
+    body = "\n".join(
+        [
+            toc,
+            "PART I",
+            "Item\xa01. Business",
+            "Real business content here.",
+            "Item\xa01A. Risk Factors",
+            "Please carefully consider the following real, substantive risk factors.",
+            "Item\xa07. Management's Discussion and Analysis",
+            "Real MD&A content about revenue and margins.",
+        ]
+    )
+    return body
+
+
+def test_detect_sections_matches_nbsp_headings_not_just_toc():
+    text = _build_nbsp_fixture()
+    result = sections.detect_sections(text)
+    item_1a = next(s for s in result if s.section_name == "Item 1A")
+    assert "substantive risk factors" in item_1a.section_text
+    assert "Title" not in item_1a.section_text  # must not be the TOC line
+
+
+def _build_running_header_fixture() -> str:
+    """TOC (dense, normal spaces), a large boilerplate gap (as real filings have between the
+    TOC and Item 1 -- cover page, forward-looking-statements disclaimer, etc.), then the real
+    Item 7 heading, then many repeated "Item 7" running-header lines scattered through the
+    section body -- reproduces the bug found on Microsoft's real 10-K, where "last occurrence
+    wins" landed near the section's *end* instead of its start."""
+    toc = "\n".join([f"Item {k}. Title {'x' * 20} {k}" for k in ("1", "7", "7A")])
+    boilerplate = "This filing contains forward-looking statements. " * 40
+    running_header_pages = "\n".join(
+        f"Item 7\nPage {i} of real MD&A content about revenue and operating margins "
+        + ("filler text " * 20)
+        for i in range(1, 21)
+    )
+    body = "\n".join(
+        [
+            toc,
+            boilerplate,
+            "PART II",
+            "Item 7. Management's Discussion and Analysis",
+            "The real heading's own first paragraph about liquidity and capital resources.",
+            running_header_pages,
+            "Item 7A. Quantitative and Qualitative Disclosures About Market Risk",
+            "Real market risk content.",
+        ]
+    )
+    return body
+
+
+def test_detect_sections_ignores_repeated_running_headers():
+    text = _build_running_header_fixture()
+    result = sections.detect_sections(text)
+    item_7 = next(s for s in result if s.section_name == "Item 7")
+    assert "liquidity and capital resources" in item_7.section_text
+    assert "Page 1 of real MD&A" in item_7.section_text  # not truncated to just the tail
+    item_7a = next(s for s in result if s.section_name == "Item 7A")
+    assert "Real market risk content" in item_7a.section_text
 
 
 def test_detect_sections_empty_text_returns_empty_list():
