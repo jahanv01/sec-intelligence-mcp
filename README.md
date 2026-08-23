@@ -1,7 +1,6 @@
 # sec-intelligence-mcp
 
-MCP server for SEC EDGAR filing intelligence — fetching, chunking/embedding, retrieval, and
-evaluation, exposed as tools an MCP client (e.g. Claude Desktop) can call.
+MCP server for SEC EDGAR filing intelligence, fetching, chunking/embedding, retrieval, and evaluation, exposed as tools an MCP client (e.g. Claude Desktop) can call.
 
 ## Setup
 
