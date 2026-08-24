@@ -165,4 +165,4 @@ results worse with this specific model.
 
 **Epic 6 — Advanced MCP Tools v2.** Added three tools that combine multiple filings or companies into higher-level analysis: compare_companies grounds a side-by-side comparison of 2-4 companies in their actual filing text with citations; detect_financial_anomalies compares a company's MD&A and Risk Factors sections across consecutive fiscal years and flags notable changes (new risks, unexplained financial swings, tone shifts); get_earnings_summary locates a company's quarterly earnings press release (the 8-K Exhibit 99.1) and extracts headline metrics, management quotes, guidance, and tone. All three were verified against real data: NVIDIA's actual FY2023→FY2024 datacenter revenue surge (126% growth) was correctly flagged as a high-severity anomaly, and Apple's real Q2 2024 earnings release yielded 4 grounded management statements from Tim Cook and Luca Maestri.
 
-**Next Up: Epic 7 — TBD.
+Next Up: Epic 7 — TBD.
