@@ -1,0 +1,52 @@
+{
+  "run_at": "2026-08-24T14:23:52.803865+00:00",
+  "retrieval_mode": "semantic",
+  "num_questions": 5,
+  "summary": {
+    "faithfulness": 1.0,
+    "answer_correctness": 0.6498755479792797,
+    "context_recall": 0.8
+  },
+  "per_question": [
+    {
+      "ticker": "NVDA",
+      "question": "According to the risk factors, what competitive advantages do some of NVIDIA's competitors possess regarding fabrication and resources?",
+      "answer": "According to the risk factors, some of NVIDIA's competitors operate their own fabrication facilities, and possess greater financial, sales, marketing, and distribution resources than NVIDIA does [Section: Item 1A, Page: 14]. Additionally, some competitors may have greater manufacturing and financial resources [Section: Item 1].",
+      "faithfulness": 1.0,
+      "answer_correctness": 0.5329913170308043,
+      "context_recall": 1.0
+    },
+    {
+      "ticker": "NVDA",
+      "question": "What does NVIDIA expect regarding supply constraints for the Gaming segment in the first quarter of fiscal 2027 and beyond?",
+      "answer": "NVIDIA expects supply constraints to be a headwind to Gaming in the first quarter of fiscal year 2027 and beyond [Section: Item 1A].",
+      "faithfulness": 1.0,
+      "answer_correctness": 0.7327722752893165,
+      "context_recall": 0.0
+    },
+    {
+      "ticker": "NVDA",
+      "question": "What upcoming advanced architectures does NVIDIA plan to release on a one-year product cadence?",
+      "answer": "Based on the provided excerpts, NVIDIA has introduced a product and architecture cadence for its Data Center solutions where it seeks to complete new computing solutions each year [Section: Item 1A, Page: 16]. However, the specific names of upcoming advanced architectures beyond Blackwell and Rubin are not mentioned in relation to this one-year cadence. \n\nThe excerpts mention the following specific architectures:\n* The NVIDIA Blackwell architecture, launched in fiscal year 2025 [Section: Item 1] and introduced for gaming/GeForce RTX 50 Series [Section: Item 1].\n* The NVIDIA Rubin platform, unveiled in fiscal year 2026 and expected to commence production shipments in the second half of fiscal year 2027 [Section: Item 1].\n\nThis information is not present in the filing regarding any other specific upcoming advanced architectures planned for release on that cadence [Section: Item 1, Section: Item 1A, Page: 16].",
+      "faithfulness": 1.0,
+      "answer_correctness": 0.3750903716123526,
+      "context_recall": 1.0
+    },
+    {
+      "ticker": "NVDA",
+      "question": "What was the exact dollar amount of the charge NVIDIA incurred in the first quarter of fiscal year 2026 associated with H20 excess inventory and purchase obligations after the USG required an export license?",
+      "answer": "NVIDIA incurred a $4.5 billion charge in the first quarter of fiscal year 2026 associated with H20 excess inventory and purchase obligations [Section: Item 7, Page: 36], [Section: Item 1A, Page: 26], [Section: Item 1], [Section: Item 7].",
+      "faithfulness": 1.0,
+      "answer_correctness": 0.6179385871864604,
+      "context_recall": 1.0
+    },
+    {
+      "ticker": "NVDA",
+      "question": "How much did NVIDIA invest in private companies and infrastructure funds primarily to support early-stage startups during fiscal year 2026?",
+      "answer": "During fiscal year 2026, NVIDIA invested $17.5 billion in private companies and infrastructure funds primarily to support early-stage startups [Section: Item 7, Page: 36].",
+      "faithfulness": 1.0,
+      "answer_correctness": 0.9905851887774648,
+      "context_recall": 1.0
+    }
+  ]
+}
