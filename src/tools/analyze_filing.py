@@ -40,15 +40,23 @@ def _format_context(results: list) -> str:
     return "\n\n".join(blocks)
 
 
-def _analyze_filing_sync(
+def _run_analysis(
     question: str,
     ticker: str,
     form_type: str | None,
     fiscal_year: int | None,
     use_reranker: bool,
+    search_fn=None,
 ) -> dict:
+    """Core retrieve-then-generate logic, with the retrieval function swappable.
+
+    Exists (rather than hardcoding hybrid_search) so evaluation/run_eval.py can compare
+    retrieval strategies (e.g. semantic-only vs hybrid) using the exact same downstream
+    generation/confidence logic as the production tool -- see Issue 7.3.
+    """
+    search_fn = search_fn or _search
     pool_size = RERANK_CANDIDATE_POOL if use_reranker else TOP_K
-    results = _search(
+    results = search_fn(
         question, ticker=ticker, form_type=form_type, fiscal_year=fiscal_year, top_k=pool_size
     )
     if use_reranker and results:
@@ -110,5 +118,5 @@ async def analyze_filing(
     """
     # Runs off the event loop thread -- see search_filings.py for why.
     return await anyio.to_thread.run_sync(
-        _analyze_filing_sync, question, ticker, form_type, fiscal_year, use_reranker
+        _run_analysis, question, ticker, form_type, fiscal_year, use_reranker
     )
