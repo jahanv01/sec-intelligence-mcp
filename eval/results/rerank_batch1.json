@@ -1,0 +1,92 @@
+{
+  "run_at": "2026-08-25T16:22:13.416195+00:00",
+  "retrieval_mode": "hybrid_rerank",
+  "num_questions": 10,
+  "summary": {
+    "faithfulness": 0.95,
+    "answer_correctness": 0.7929516282116768,
+    "context_recall": 1.0
+  },
+  "per_question": [
+    {
+      "ticker": "AAPL",
+      "question": "What specific models comprise the Company's line of smartwatches based on watchOS?",
+      "answer": "Based on the provided excerpts, the Company's line of smartwatches based on the watchOS\u00ae operating system includes Apple Watch\u00ae Series 11, Apple Watch SE\u00ae 3, and Apple Watch Ultra\u00ae 3 [Section: Item 1].",
+      "faithfulness": 1.0,
+      "answer_correctness": 0.987000108659711,
+      "context_recall": 1.0
+    },
+    {
+      "ticker": "AAPL",
+      "question": "What percentage of total net sales did direct and indirect distribution channels account for during 2025 respectively?",
+      "answer": "During 2025, the Company's net sales through its direct and indirect distribution channels accounted for 40% and 60%, respectively, of total net sales [Section: Item 1, Page: 2].",
+      "faithfulness": 1.0,
+      "answer_correctness": 0.994357799037603,
+      "context_recall": 1.0
+    },
+    {
+      "ticker": "AAPL",
+      "question": "How did total net sales change in 2025 compared to 2024, and what were the total net sales figures for both years?",
+      "answer": "In 2025, total net sales increased by 6% compared to 2024 [Section: Item 7]. The total net sales figure was $416,161 million in 2025 and $391,035 million in 2024 [Section: Item 7].",
+      "faithfulness": 1.0,
+      "answer_correctness": 0.883706890229847,
+      "context_recall": 1.0
+    },
+    {
+      "ticker": "AAPL",
+      "question": "How did the Company's effective tax rate in 2025 compare to 2024, and what was the rate for each year?",
+      "answer": "The Company's effective tax rate for 2025 was lower compared to 2024 [Section: Item 7]. The effective tax rate was 15.6% for 2025 and 24.1% for 2024 [Section: Item 7]. \n\nThe lower effective tax rate in 2025 compared to 2024 was due to a $10.7 billion year-over-year decrease in the provision for income taxes related to the State Aid Decision and the impact of changes in unrecognized tax benefits, partially offset by a change in valuation allowance and a higher effective tax rate on foreign earnings [Section: Item 7].",
+      "faithfulness": 1.0,
+      "answer_correctness": 0.6794503989445797,
+      "context_recall": 1.0
+    },
+    {
+      "ticker": "AAPL",
+      "question": "What new U.S. Tariffs were introduced beginning in the second quarter of 2025, and how did affected countries respond?",
+      "answer": "Beginning in the second quarter of 2025, new U.S. Tariffs were announced, which included additional tariffs on imports from China, India, Japan, South Korea, Taiwan, Vietnam, and the European Union (EU), among others [Section: Item 7, Page: 21], [Section: Item 1A, Page: 16]. \n\nIn response, several countries have imposed, or threatened to impose, reciprocal tariffs on imports from the U.S. and other retaliatory measures [Section: Item 7, Page: 21], [Section: Item 1A, Page: 16].",
+      "faithfulness": 1.0,
+      "answer_correctness": 0.8885633973531978,
+      "context_recall": 1.0
+    },
+    {
+      "ticker": "AAPL",
+      "question": "What potential business disruptions could result from natural disasters, climate change, or industrial accidents at supplier locations?",
+      "answer": "Based on the provided excerpts, potential business disruptions and their consequences resulting from natural disasters, climate change, or industrial accidents at supplier and contract manufacturer locations include:\n\n* Making it difficult or impossible for the Company to manufacture and deliver products to its customers [Section: Item 1A].\n* Creating delays and inefficiencies in the Company's supply and manufacturing chain [Section: Item 1A].\n* Resulting in slowdowns and outages to the Company's service offerings [Section: Item 1A].\n* Increasing the Company's costs and negatively impacting consumer spending and demand in affected areas [Section: Item 1A].\n* Having a material adverse effect on the Company, its customers, employees, suppliers, contract manufacturers, logistics providers, distributors, cellular network carriers, and other channel partners [Section: Item 1A, Page: 6], [Section: Item 1A].\n* Causing serious injuries or loss of life, disruption to the Company's business, and harm to the Company's reputation (specifically regarding industrial accidents at suppliers and contract manufacturers) [Section: Item 1A, Page: 6], [Section: Item 1A].\n* Requiring substantial recovery time, incurring significant expenditures to resume operations, and losing significant sales following any business interruption [Section: Item 1A, Page: 6]. Because the Company relies on single or limited sources for many critical components, interruptions affecting these sources exacerbate these negative consequences [Section: Item 1A, Page: 6].",
+      "faithfulness": 1.0,
+      "answer_correctness": 0.5524465816923373,
+      "context_recall": 1.0
+    },
+    {
+      "ticker": "AAPL",
+      "question": "What is the Company's outlook regarding future gross margins and the factors expected to influence them?",
+      "answer": "Based on the provided excerpts, the Company believes that, in general, its future gross margins will be subject to volatility and downward pressure [Section: Item 7, Page: 24]. \n\nThe Company's future gross margins and net sales can be impacted by a variety of factors, including:\n* Continued industry-wide global product pricing pressures and product pricing actions taken by the Company in response [Section: Item 1A].\n* Increased competition [Section: Item 1A].\n* The Company's ability to effectively stimulate demand for certain of its products and services [Section: Item 1A].\n* Compressed product life cycles [Section: Item 1A].\n* Supply shortages [Section: Item 1A].\n* Potential increases in the cost of components, outside manufacturing services, and developing, acquiring, and delivering content for services [Section: Item 1A].\n* The Company's ability to manage product quality and warranty costs effectively [Section: Item 1A].\n* Shifts in the mix of products and services, or in the geographic, currency, or channel mix (including modifications required by regulatory changes) [Section: Item 1A].\n* Fluctuations in foreign exchange rates [Section: Item 1A].\n* Inflation and other macroeconomic pressures [Section: Item 1A].\n* The imposition of new or increased tariffs and other trade restrictions, their overall magnitude and duration, and retaliatory actions [Section: Item 1A].\n* The introduction of new products or services, including those with lower profit margins [Section: Item 1A].\n* A decline in demand for a single product category from which the Company generates a significant portion of its net sales [Section: Item 1A].",
+      "faithfulness": 1.0,
+      "answer_correctness": 0.32044070526165724,
+      "context_recall": 1.0
+    },
+    {
+      "ticker": "AAPL",
+      "question": "Does the Company believe its current cash, cash equivalents, marketable securities, and ongoing cash generation will be sufficient for its upcoming obligations?",
+      "answer": "Yes, the Company believes that its balances of cash, cash equivalents and marketable securities (totaling $132.4 billion as of September 27, 2025), along with cash generated by ongoing operations and continued access to debt markets, will be sufficient to satisfy its cash requirements and capital return program over the next 12 months and beyond [Section: Item 7].",
+      "faithfulness": 0.75,
+      "answer_correctness": 0.8895039509622362,
+      "context_recall": 1.0
+    },
+    {
+      "ticker": "AAPL",
+      "question": "What was the exact aggregate principal amount of outstanding fixed-rate notes as of September 27, 2025, and how much of that is payable within 12 months?",
+      "answer": "As of September 27, 2025, the aggregate principal amount of outstanding fixed-rate notes (referred to as the \"Notes\") was $91.3 billion (or $91,281 million in total term debt principal) [Section: Item 7], [Section: Item 8]. Of that amount, $12.4 billion (or $12,350 million representing the current portion of term debt / payments due in 2026) is payable within 12 months [Section: Item 7], [Section: Item 8].",
+      "faithfulness": 0.75,
+      "answer_correctness": 0.736762013868688,
+      "context_recall": 1.0
+    },
+    {
+      "ticker": "AAPL",
+      "question": "What were the manufacturing purchase obligations as of September 27, 2025, and how much of that amount was payable within 12 months?",
+      "answer": "As of September 27, 2025, the Company had manufacturing purchase obligations of $56.2 billion, with $55.4 billion payable within 12 months [Section: Item 7].",
+      "faithfulness": 1.0,
+      "answer_correctness": 0.9972844361069106,
+      "context_recall": 1.0
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "run_at": "2026-08-25T16:39:29.147479+00:00",
+  "retrieval_mode": "hybrid_rerank",
+  "num_questions": 1,
+  "summary": {
+    "faithfulness": 1.0,
+    "answer_correctness": 0.6161108778641196,
+    "context_recall": 1.0
+  },
+  "per_question": [
+    {
+      "ticker": "GOOGL",
+      "question": "What is the name of Alphabet's seventh-generation custom-built Tensor Processing Unit (TPU)?",
+      "answer": "Alphabet's seventh-generation custom-built Tensor Processing Unit (TPU) is named Ironwood [Section: Item 1].",
+      "faithfulness": 1.0,
+      "answer_correctness": 0.6161108778641196,
+      "context_recall": 1.0
+    }
+  ]
+}
