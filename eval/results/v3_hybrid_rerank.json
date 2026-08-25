@@ -1,0 +1,412 @@
+{
+  "run_at": "2026-08-25T17:12:45.221947+00:00",
+  "retrieval_mode": "hybrid_rerank",
+  "num_questions": 50,
+  "summary": {
+    "faithfulness": 0.9816666666666667,
+    "answer_correctness": 0.8166969221296564,
+    "context_recall": 1.0
+  },
+  "per_question": [
+    {
+      "ticker": "AAPL",
+      "question": "What specific models comprise the Company's line of smartwatches based on watchOS?",
+      "answer": "Based on the provided excerpts, the Company's line of smartwatches based on the watchOS\u00ae operating system includes Apple Watch\u00ae Series 11, Apple Watch SE\u00ae 3, and Apple Watch Ultra\u00ae 3 [Section: Item 1].",
+      "faithfulness": 1.0,
+      "answer_correctness": 0.987000108659711,
+      "context_recall": 1.0
+    },
+    {
+      "ticker": "AAPL",
+      "question": "What percentage of total net sales did direct and indirect distribution channels account for during 2025 respectively?",
+      "answer": "During 2025, the Company's net sales through its direct and indirect distribution channels accounted for 40% and 60%, respectively, of total net sales [Section: Item 1, Page: 2].",
+      "faithfulness": 1.0,
+      "answer_correctness": 0.994357799037603,
+      "context_recall": 1.0
+    },
+    {
+      "ticker": "AAPL",
+      "question": "How did total net sales change in 2025 compared to 2024, and what were the total net sales figures for both years?",
+      "answer": "In 2025, total net sales increased by 6% compared to 2024 [Section: Item 7]. The total net sales figure was $416,161 million in 2025 and $391,035 million in 2024 [Section: Item 7].",
+      "faithfulness": 1.0,
+      "answer_correctness": 0.883706890229847,
+      "context_recall": 1.0
+    },
+    {
+      "ticker": "AAPL",
+      "question": "How did the Company's effective tax rate in 2025 compare to 2024, and what was the rate for each year?",
+      "answer": "The Company's effective tax rate for 2025 was lower compared to 2024 [Section: Item 7]. The effective tax rate was 15.6% for 2025 and 24.1% for 2024 [Section: Item 7]. \n\nThe lower effective tax rate in 2025 compared to 2024 was due to a $10.7 billion year-over-year decrease in the provision for income taxes related to the State Aid Decision and the impact of changes in unrecognized tax benefits, partially offset by a change in valuation allowance and a higher effective tax rate on foreign earnings [Section: Item 7].",
+      "faithfulness": 1.0,
+      "answer_correctness": 0.6794503989445797,
+      "context_recall": 1.0
+    },
+    {
+      "ticker": "AAPL",
+      "question": "What new U.S. Tariffs were introduced beginning in the second quarter of 2025, and how did affected countries respond?",
+      "answer": "Beginning in the second quarter of 2025, new U.S. Tariffs were announced, which included additional tariffs on imports from China, India, Japan, South Korea, Taiwan, Vietnam, and the European Union (EU), among others [Section: Item 7, Page: 21], [Section: Item 1A, Page: 16]. \n\nIn response, several countries have imposed, or threatened to impose, reciprocal tariffs on imports from the U.S. and other retaliatory measures [Section: Item 7, Page: 21], [Section: Item 1A, Page: 16].",
+      "faithfulness": 1.0,
+      "answer_correctness": 0.8885633973531978,
+      "context_recall": 1.0
+    },
+    {
+      "ticker": "AAPL",
+      "question": "What potential business disruptions could result from natural disasters, climate change, or industrial accidents at supplier locations?",
+      "answer": "Based on the provided excerpts, potential business disruptions and their consequences resulting from natural disasters, climate change, or industrial accidents at supplier and contract manufacturer locations include:\n\n* Making it difficult or impossible for the Company to manufacture and deliver products to its customers [Section: Item 1A].\n* Creating delays and inefficiencies in the Company's supply and manufacturing chain [Section: Item 1A].\n* Resulting in slowdowns and outages to the Company's service offerings [Section: Item 1A].\n* Increasing the Company's costs and negatively impacting consumer spending and demand in affected areas [Section: Item 1A].\n* Having a material adverse effect on the Company, its customers, employees, suppliers, contract manufacturers, logistics providers, distributors, cellular network carriers, and other channel partners [Section: Item 1A, Page: 6], [Section: Item 1A].\n* Causing serious injuries or loss of life, disruption to the Company's business, and harm to the Company's reputation (specifically regarding industrial accidents at suppliers and contract manufacturers) [Section: Item 1A, Page: 6], [Section: Item 1A].\n* Requiring substantial recovery time, incurring significant expenditures to resume operations, and losing significant sales following any business interruption [Section: Item 1A, Page: 6]. Because the Company relies on single or limited sources for many critical components, interruptions affecting these sources exacerbate these negative consequences [Section: Item 1A, Page: 6].",
+      "faithfulness": 1.0,
+      "answer_correctness": 0.5524465816923373,
+      "context_recall": 1.0
+    },
+    {
+      "ticker": "AAPL",
+      "question": "What is the Company's outlook regarding future gross margins and the factors expected to influence them?",
+      "answer": "Based on the provided excerpts, the Company believes that, in general, its future gross margins will be subject to volatility and downward pressure [Section: Item 7, Page: 24]. \n\nThe Company's future gross margins and net sales can be impacted by a variety of factors, including:\n* Continued industry-wide global product pricing pressures and product pricing actions taken by the Company in response [Section: Item 1A].\n* Increased competition [Section: Item 1A].\n* The Company's ability to effectively stimulate demand for certain of its products and services [Section: Item 1A].\n* Compressed product life cycles [Section: Item 1A].\n* Supply shortages [Section: Item 1A].\n* Potential increases in the cost of components, outside manufacturing services, and developing, acquiring, and delivering content for services [Section: Item 1A].\n* The Company's ability to manage product quality and warranty costs effectively [Section: Item 1A].\n* Shifts in the mix of products and services, or in the geographic, currency, or channel mix (including modifications required by regulatory changes) [Section: Item 1A].\n* Fluctuations in foreign exchange rates [Section: Item 1A].\n* Inflation and other macroeconomic pressures [Section: Item 1A].\n* The imposition of new or increased tariffs and other trade restrictions, their overall magnitude and duration, and retaliatory actions [Section: Item 1A].\n* The introduction of new products or services, including those with lower profit margins [Section: Item 1A].\n* A decline in demand for a single product category from which the Company generates a significant portion of its net sales [Section: Item 1A].",
+      "faithfulness": 1.0,
+      "answer_correctness": 0.32044070526165724,
+      "context_recall": 1.0
+    },
+    {
+      "ticker": "AAPL",
+      "question": "Does the Company believe its current cash, cash equivalents, marketable securities, and ongoing cash generation will be sufficient for its upcoming obligations?",
+      "answer": "Yes, the Company believes that its balances of cash, cash equivalents and marketable securities (totaling $132.4 billion as of September 27, 2025), along with cash generated by ongoing operations and continued access to debt markets, will be sufficient to satisfy its cash requirements and capital return program over the next 12 months and beyond [Section: Item 7].",
+      "faithfulness": 0.75,
+      "answer_correctness": 0.8895039509622362,
+      "context_recall": 1.0
+    },
+    {
+      "ticker": "AAPL",
+      "question": "What was the exact aggregate principal amount of outstanding fixed-rate notes as of September 27, 2025, and how much of that is payable within 12 months?",
+      "answer": "As of September 27, 2025, the aggregate principal amount of outstanding fixed-rate notes (referred to as the \"Notes\") was $91.3 billion (or $91,281 million in total term debt principal) [Section: Item 7], [Section: Item 8]. Of that amount, $12.4 billion (or $12,350 million representing the current portion of term debt / payments due in 2026) is payable within 12 months [Section: Item 7], [Section: Item 8].",
+      "faithfulness": 0.75,
+      "answer_correctness": 0.736762013868688,
+      "context_recall": 1.0
+    },
+    {
+      "ticker": "AAPL",
+      "question": "What were the manufacturing purchase obligations as of September 27, 2025, and how much of that amount was payable within 12 months?",
+      "answer": "As of September 27, 2025, the Company had manufacturing purchase obligations of $56.2 billion, with $55.4 billion payable within 12 months [Section: Item 7].",
+      "faithfulness": 1.0,
+      "answer_correctness": 0.9972844361069106,
+      "context_recall": 1.0
+    },
+    {
+      "ticker": "NVDA",
+      "question": "What foundational development platform did NVIDIA introduce in 2006 that opened the parallel processing capabilities of its GPU to a broad range of compute-intensive applications?",
+      "answer": "In 2006, NVIDIA introduced CUDA as the foundational development platform that opened the parallel processing capabilities of its GPU to a broad range of compute-intensive applications [Section: Item 1].",
+      "faithfulness": 1.0,
+      "answer_correctness": 0.835106340450809,
+      "context_recall": 1.0
+    },
+    {
+      "ticker": "NVDA",
+      "question": "What architecture was introduced in 2024 that connects 36 Grace CPUs and 72 Blackwell GPUs in a data center scale, liquid-cooled design?",
+      "answer": "The NVIDIA Blackwell architecture was launched in 2024, connecting 36 Grace CPUs and 72 Blackwell GPUs in a data center scale, liquid-cooled design for real-time trillion-parameter inference and training [Section: Item 1].",
+      "faithfulness": 1.0,
+      "answer_correctness": 0.9952132936414013,
+      "context_recall": 1.0
+    },
+    {
+      "ticker": "NVDA",
+      "question": "How did NVIDIA's total revenue change in fiscal year 2026 compared to fiscal year 2025?",
+      "answer": "In fiscal year 2026, NVIDIA's total revenue increased to $215,938 million (or by $85,441 million, representing a 65% change) compared to $130,497 million in fiscal year 2025 [Section: Item 7].",
+      "faithfulness": 1.0,
+      "answer_correctness": 0.7152435653073623,
+      "context_recall": 1.0
+    },
+    {
+      "ticker": "NVDA",
+      "question": "How did NVIDIA's gross margin percentage change from fiscal year 2025 to fiscal year 2026, and what factors contributed to the decrease?",
+      "answer": "Based on the provided excerpts, NVIDIA's gross margin percentage decreased from 75.0% in fiscal year 2025 to 71.1% in fiscal year 2026 [Section: Item 7]. \n\nThe factors that contributed to this decrease are:\n* The transition of the business model from offering Hopper HGX systems to Blackwell full-scale datacenter solutions [Section: Item 7].\n* A $4.5 billion charge associated with H20 excess inventory and purchase obligations (incurred in the first quarter of fiscal year 2026) [Section: Item 7].",
+      "faithfulness": 1.0,
+      "answer_correctness": 0.8693462865011824,
+      "context_recall": 1.0
+    },
+    {
+      "ticker": "NVDA",
+      "question": "What intellectual property license arrangement does NVIDIA mention as requiring significant, nonrefundable payments and involving integration challenges?",
+      "answer": "NVIDIA mentions an intellectual property license arrangement with Groq, Inc. (or Groq) that required significant, nonrefundable payments and involves incorporating the licensed technology into NVIDIA's architectures and product roadmaps, which requires significant engineering effort and faces integration challenges such as not occurring on expected timelines or at all [Section: Item 1A].",
+      "faithfulness": 1.0,
+      "answer_correctness": 0.7878933557594452,
+      "context_recall": 1.0
+    },
+    {
+      "ticker": "NVDA",
+      "question": "According to the risk factors, what competitive advantages do some of NVIDIA's competitors possess regarding fabrication and resources?",
+      "answer": "According to the risk factors, some of NVIDIA's competitors operate their own fabrication facilities, and possess longer operating histories, larger customer bases, more comprehensive IP portfolios and patent protections, more design wins, and greater financial, sales, marketing, and distribution resources than NVIDIA does [Section: Item 1A].",
+      "faithfulness": 1.0,
+      "answer_correctness": 0.8039847432248511,
+      "context_recall": 1.0
+    },
+    {
+      "ticker": "NVDA",
+      "question": "What does NVIDIA expect regarding supply constraints for the Gaming segment in the first quarter of fiscal 2027 and beyond?",
+      "answer": "NVIDIA expects supply constraints to be a headwind to Gaming in the first quarter of fiscal year 2027 and beyond [Section: Item 1A] [Section: Item 7].",
+      "faithfulness": 1.0,
+      "answer_correctness": 0.7320964253577169,
+      "context_recall": 1.0
+    },
+    {
+      "ticker": "NVDA",
+      "question": "What upcoming advanced architectures does NVIDIA plan to release on a one-year product cadence?",
+      "answer": "Based on the provided excerpts, NVIDIA plans to bring new advanced architectures on a one-year product cadence, which includes the Rubin platform [Section: Item 7].",
+      "faithfulness": 1.0,
+      "answer_correctness": 0.8315903689608373,
+      "context_recall": 1.0
+    },
+    {
+      "ticker": "NVDA",
+      "question": "What was the exact dollar amount of the charge NVIDIA incurred in the first quarter of fiscal year 2026 associated with H20 excess inventory and purchase obligations after the USG required an export license?",
+      "answer": "NVIDIA incurred a $4.5 billion charge in the first quarter of fiscal year 2026 associated with H20 for excess inventory and purchase obligations [Section: Item 7, Page: 36], [Section: Item 1A, Page: 26], [Section: Item 7].",
+      "faithfulness": 1.0,
+      "answer_correctness": 0.9930749850897995,
+      "context_recall": 1.0
+    },
+    {
+      "ticker": "NVDA",
+      "question": "How much did NVIDIA invest in private companies and infrastructure funds primarily to support early-stage startups during fiscal year 2026?",
+      "answer": "During fiscal year 2026, NVIDIA invested $17.5 billion in private companies and infrastructure funds primarily to support early-stage startups [Section: Item 7, Page: 36].",
+      "faithfulness": 1.0,
+      "answer_correctness": 0.9905851887774648,
+      "context_recall": 1.0
+    },
+    {
+      "ticker": "MSFT",
+      "question": "What year was Microsoft founded, according to Item 1?",
+      "answer": "Microsoft was founded in 1975 [Section: Item 1].",
+      "faithfulness": 1.0,
+      "answer_correctness": 0.7435308171071242,
+      "context_recall": 1.0
+    },
+    {
+      "ticker": "MSFT",
+      "question": "What are the three interconnected ambitions that focus Microsoft's research and development efforts?",
+      "answer": "To achieve its vision, Microsoft's research and development efforts focus on the following three interconnected ambitions:\n\n* Reinvent productivity and business processes to help organizations and individuals work and collaborate more securely and efficiently [Section: Item 1]\n* Build the intelligent cloud and intelligent edge platform to provide a foundation for our customers\u2019 digital workloads, including hybrid consistency, developer productivity, data and AI capabilities, and trusted security and compliance [Section: Item 1]\n* Create more personal computing experiences that empower people to play, create, and interact with technology in more intuitive, engaging, and dynamic ways [Section: Item 1]",
+      "faithfulness": 1.0,
+      "answer_correctness": 0.5766787966077402,
+      "context_recall": 1.0
+    },
+    {
+      "ticker": "MSFT",
+      "question": "How did Microsoft Cloud revenue change in fiscal year 2026 compared to fiscal year 2025?",
+      "answer": "Based on the provided excerpts, Microsoft Cloud revenue increased 27% to $214.4 billion in fiscal year 2026 compared to fiscal year 2025 [Section: Item 7].",
+      "faithfulness": 1.0,
+      "answer_correctness": 0.988309157816624,
+      "context_recall": 1.0
+    },
+    {
+      "ticker": "MSFT",
+      "question": "According to the highlights from fiscal year 2026 compared with fiscal year 2025, how did XBOX content and services revenue perform?",
+      "answer": "According to the highlights from fiscal year 2026 compared with fiscal year 2025, XBOX content and services revenue decreased 5% [Section: Item 7]. \n\nAdditionally, the filing notes that XBOX content and services revenue decreased 5% on a prior year comparable that benefited from strong first-party content performance, offset in part by growth in XBOX Game Pass [Section: Item 7, Page: 39].",
+      "faithfulness": 0.75,
+      "answer_correctness": 0.5378922016778762,
+      "context_recall": 1.0
+    },
+    {
+      "ticker": "MSFT",
+      "question": "What does Item 1A state regarding the potential consequences of overestimating demand or misaligning capacity investments in cloud and AI?",
+      "answer": "Item 1A states that overestimating demand or misaligning capacity investments in cloud-based and AI products and services may result in the underutilization of infrastructure and may lead to the impairment of assets on the company's balance sheet [Section: Item 1A].",
+      "faithfulness": 1.0,
+      "answer_correctness": 0.974927679945526,
+      "context_recall": 1.0
+    },
+    {
+      "ticker": "MSFT",
+      "question": "According to Item 1A, what operational risks and cost impacts are associated with expanding Microsoft's vertically-integrated capabilities?",
+      "answer": "According to Item 1A, expanding Microsoft's vertically-integrated capabilities (including developing proprietary hardware, infrastructure, and artificial intelligence (\u201cAI\u201d) models) could increase the cost structure, reduce margins, and expose the company to operational risks [Section: Item 1A].",
+      "faithfulness": 1.0,
+      "answer_correctness": 0.9836903010289099,
+      "context_recall": 1.0
+    },
+    {
+      "ticker": "MSFT",
+      "question": "What does Microsoft expect its investments in cloud and AI infrastructure and devices to do to its operating costs and margins?",
+      "answer": "Microsoft states that the investments it is making in cloud and AI infrastructure and devices will continue to increase its operating costs and may decrease its operating margins [Section: Item 7].",
+      "faithfulness": 1.0,
+      "answer_correctness": 0.9939148740145849,
+      "context_recall": 1.0
+    },
+    {
+      "ticker": "MSFT",
+      "question": "What does Microsoft expect its long-term goal of leading the industry in several distinct areas of technology to translate into?",
+      "answer": "Microsoft expects its long-term goal of leading the industry in several distinct areas of technology to translate into sustained growth [Section: Item 1].",
+      "faithfulness": 1.0,
+      "answer_correctness": 0.9880391729738635,
+      "context_recall": 1.0
+    },
+    {
+      "ticker": "MSFT",
+      "question": "What was the exact dollar amount and percentage increase for commercial remaining performance obligation in fiscal year 2026?",
+      "answer": "Based on the provided excerpts, commercial remaining performance obligation increased by 84% to $678 billion in fiscal year 2026 [Section: Item 7]. The exact dollar amount increase is not present in the filing.",
+      "faithfulness": 1.0,
+      "answer_correctness": 0.8299508990913087,
+      "context_recall": 1.0
+    },
+    {
+      "ticker": "MSFT",
+      "question": "What were Microsoft's total revenue and total operating income figures for fiscal year 2026?",
+      "answer": "For fiscal year 2026, Microsoft's total revenue was $331,839 million (or $331.839 billion) and total operating income was $155,237 million [Section: Item 8].",
+      "faithfulness": 1.0,
+      "answer_correctness": 0.9949866517546244,
+      "context_recall": 1.0
+    },
+    {
+      "ticker": "AMZN",
+      "question": "What are the four guiding principles of Amazon as stated in its business overview?",
+      "answer": "Based on the provided filing, Amazon is guided by the following four principles:\n1. Customer obsession rather than competitor focus\n2. Passion for invention\n3. Commitment to operational excellence\n4. Long-term thinking\n\n[Section: Item 1]",
+      "faithfulness": 1.0,
+      "answer_correctness": 0.9827308442766627,
+      "context_recall": 1.0
+    },
+    {
+      "ticker": "AMZN",
+      "question": "What electronic devices does Amazon manufacture and sell according to Item 1?",
+      "answer": "According to Item 1, Amazon manufactures and sells electronic devices including Kindle, Fire tablet, Fire TV, Echo, Ring, Blink, and eero [Section: Item 1].",
+      "faithfulness": 1.0,
+      "answer_correctness": 0.8913983551925417,
+      "context_recall": 1.0
+    },
+    {
+      "ticker": "AMZN",
+      "question": "How did total shares outstanding plus outstanding stock awards change between December 31, 2024, and December 31, 2025?",
+      "answer": "Common shares outstanding plus shares underlying outstanding stock awards totaled 10.9 billion as of December 31, 2024, and 11.0 billion as of December 31, 2025 [Section: Item 8]. This represents an increase of 0.1 billion between December 31, 2024, and December 31, 2025 [Section: Item 8].",
+      "faithfulness": 1.0,
+      "answer_correctness": 0.8391847740104474,
+      "context_recall": 1.0
+    },
+    {
+      "ticker": "AMZN",
+      "question": "By how much did International segment net sales increase in comparison with the prior year as a result of fluctuations in foreign exchange rates throughout the year?",
+      "answer": "As a result of fluctuations in foreign exchange rates throughout the year, International segment net sales increased by $4.9 billion in comparison with the prior year [Section: Item 7].",
+      "faithfulness": 1.0,
+      "answer_correctness": 0.9954229082648711,
+      "context_recall": 1.0
+    },
+    {
+      "ticker": "AMZN",
+      "question": "What specific structures and marketing/logistics tools does Amazon use to operate in India given government restrictions on foreign ownership?",
+      "answer": "To operate in India given government restrictions on the ownership or control of Indian companies by foreign entities involved in online multi-brand retail trading, Amazon uses the following structures and marketing and logistics tools:\n\n* **Marketing tools and logistics services:** For www.amazon.in, Amazon provides certain marketing tools and logistics services to third-party sellers to enable them to sell online and deliver to customers [Section: Item 1A, Page: 7].\n* **Indirect minority interest:** Amazon holds an indirect minority interest in an entity that is a third-party seller on the www.amazon.in marketplace [Section: Item 1A, Page: 7].",
+      "faithfulness": 0.8333333333333334,
+      "answer_correctness": 0.8333992864006423,
+      "context_recall": 1.0
+    },
+    {
+      "ticker": "AMZN",
+      "question": "How does Amazon provide certain technology services in the People\u2019s Republic of China (PRC) to meet local ownership, regulatory licensing, and cybersecurity requirements?",
+      "answer": "To meet local ownership, regulatory licensing, and cybersecurity requirements in the People\u2019s Republic of China (PRC), certain technology services are provided through contractual relationships with third parties that hold PRC licenses to provide services [Section: Item 1A].",
+      "faithfulness": 1.0,
+      "answer_correctness": 0.7270442763674902,
+      "context_recall": 1.0
+    },
+    {
+      "ticker": "AMZN",
+      "question": "What expectation does Amazon hold regarding its spending in technology and infrastructure over time, and how might it impact short-term free cash flow?",
+      "answer": "Amazon expects its spending in technology and infrastructure to increase over time as the company continues to add infrastructure and employees, including to support its artificial intelligence and machine learning initiatives for long-term growth [Section: Item 7]. This anticipated increase in spending can negatively impact short-term free cash flow [Section: Item 7].",
+      "faithfulness": 1.0,
+      "answer_correctness": 0.745329227156914,
+      "context_recall": 1.0
+    },
+    {
+      "ticker": "AMZN",
+      "question": "What other initiatives beyond software and electronic devices is Amazon investing in, as mentioned in its management discussion on technological advances?",
+      "answer": "Based on the provided excerpts, Amazon is investing in other initiatives that include the development of a satellite network for global broadband service and autonomous vehicles for ride-hailing services [Section: Item 7].",
+      "faithfulness": 1.0,
+      "answer_correctness": 0.9854045221299194,
+      "context_recall": 1.0
+    },
+    {
+      "ticker": "AMZN",
+      "question": "What was the estimated fair value and face value of Amazon's long-term debt (including the current portion) as of December 31, 2025?",
+      "answer": "As of December 31, 2025, Amazon had long-term debt with a face value of $68.8 billion, including the current portion [Section: Item 7A]. Additionally, the estimated fair value of the Notes was approximately $61.1 billion as of December 31, 2025 [Section: Item 8].",
+      "faithfulness": 1.0,
+      "answer_correctness": 0.5383034476728821,
+      "context_recall": 1.0
+    },
+    {
+      "ticker": "AMZN",
+      "question": "What percentage of consolidated revenues did net sales from the International segment account for during 2025?",
+      "answer": "During 2025, net sales from the International segment accounted for 23% of consolidated revenues [Section: Item 7A].",
+      "faithfulness": 1.0,
+      "answer_correctness": 0.9923563827401823,
+      "context_recall": 1.0
+    },
+    {
+      "ticker": "GOOGL",
+      "question": "What is the name of Alphabet's seventh-generation custom-built Tensor Processing Unit (TPU)?",
+      "answer": "Alphabet's seventh-generation custom-built Tensor Processing Unit (TPU) is named Ironwood [Section: Item 1].",
+      "faithfulness": 1.0,
+      "answer_correctness": 0.6161108778641196,
+      "context_recall": 1.0
+    },
+    {
+      "ticker": "GOOGL",
+      "question": "Which of Alphabet's models is described as its most intelligent AI model yet, featuring advanced multimodal understanding?",
+      "answer": "Gemini 3 is described as Alphabet's most intelligent AI model yet, designed to deliver advanced multimodal understanding [Section: Item 1].",
+      "faithfulness": 1.0,
+      "answer_correctness": 0.8427132344796509,
+      "context_recall": 1.0
+    },
+    {
+      "ticker": "GOOGL",
+      "question": "How did the foreign-denominated monetary assets and liabilities impact (OI&E) under the 10% foreign currency risk sensitivity analysis change from December 31, 2024 to December 31, 2025?",
+      "answer": "Under the 10% foreign currency risk sensitivity analysis, the estimated potential impact on OI&E from foreign-denominated monetary assets and liabilities (after consideration of the effect of derivative contracts) changed from $135 million as of December 31, 2024 to $671 million as of December 31, 2025 [Section: Item 7A].",
+      "faithfulness": 1.0,
+      "answer_correctness": 0.6689426301133057,
+      "context_recall": 1.0
+    },
+    {
+      "ticker": "GOOGL",
+      "question": "How did the estimated one-day loss in fair value of the investment portfolio due to interest rate risk change between December 31, 2024, and December 31, 2025?",
+      "answer": "Based on the provided excerpts, the estimated one-day loss in fair value of the investment portfolio due to interest rate risk (under the risk category - interest rate) was $208 million as of December 31, 2024, and changed to $162 million as of December 31, 2025 [Section: Item 7A].",
+      "faithfulness": 1.0,
+      "answer_correctness": 0.8349630595159611,
+      "context_recall": 1.0
+    },
+    {
+      "ticker": "GOOGL",
+      "question": "What percentage of total revenues did Alphabet generate from online advertising in 2025?",
+      "answer": "Alphabet generated more than 70% of its total revenues from online advertising in 2025 [Section: Item 1A].",
+      "faithfulness": 1.0,
+      "answer_correctness": 0.6131837218689531,
+      "context_recall": 1.0
+    },
+    {
+      "ticker": "GOOGL",
+      "question": "What types of arrangements is Alphabet entering into to meet the compute capacity demands of AI training and inference, and what potential risks do they carry?",
+      "answer": "To meet the compute capacity demands of AI training and inference (as well as traditional cloud computing services), Alphabet is entering into significant leasing arrangements with third-party operators [Section: Item 1A]. Additionally, to secure the capacity needed to scale its technical infrastructure\u2014given that energy supply is globally constrained by the demand to power AI compute\u2014the company enters into complex, long-lead-time arrangements [Section: Item 1A]. Alphabet also has large, long-duration commercial agreements [Section: Item 1A].\n\nThese arrangements carry several potential risks:\n* **Leasing arrangements:** May increase costs and operational complexity [Section: Item 1A].\n* **Commercial agreements:** Could increase liabilities and obligations if Alphabet, its counterparties, or vendors experience nonperformance [Section: Item 1A].\n* **Nonperformance or industry downturns:** Alphabet may incur additional liabilities, hold excess capacity that cannot be easily redeployed, and fail to receive payments from counterparties or customers [Section: Item 1A].",
+      "faithfulness": 1.0,
+      "answer_correctness": 0.6580833087106865,
+      "context_recall": 1.0
+    },
+    {
+      "ticker": "GOOGL",
+      "question": "What are Alphabet's expectations regarding its technical infrastructure capital expenditures relative to 2025?",
+      "answer": "Alphabet expects to significantly increase its investment in its technical infrastructure\u2014including servers and network equipment, and data centers\u2014in 2026 relative to 2025 [Section: Item 7].",
+      "faithfulness": 1.0,
+      "answer_correctness": 0.7412813615961172,
+      "context_recall": 1.0
+    },
+    {
+      "ticker": "GOOGL",
+      "question": "How does Alphabet expect technical infrastructure operating costs to change as it develops and serves AI offerings?",
+      "answer": "Alphabet expects the costs associated with operating its technical infrastructure\u2014specifically depreciation, energy, equipment, and network capacity\u2014to significantly increase because developing and serving AI offerings requires more compute power than historical consumer and enterprise offerings [Section: Item 7]. While these costs increase, Alphabet also expects to continue driving efficiencies in its data centers, for instance through the design of its AI models and its TPU and GPU-based technical infrastructure [Section: Item 7].",
+      "faithfulness": 1.0,
+      "answer_correctness": 0.8039529281089763,
+      "context_recall": 1.0
+    },
+    {
+      "ticker": "GOOGL",
+      "question": "How much has Google invested in research and development over the last five years?",
+      "answer": "Google has invested more than $200 billion in research and development in the last five years [Section: Item 1].",
+      "faithfulness": 1.0,
+      "answer_correctness": 0.6043990004769932,
+      "context_recall": 1.0
+    },
+    {
+      "ticker": "GOOGL",
+      "question": "How many half-billion-user products does Google have, and how many of those have two billion users?",
+      "answer": "Google has 15 half-billion-user products, and seven of those products have two billion users [Section: Item 1].",
+      "faithfulness": 1.0,
+      "answer_correctness": 0.8250705723296865,
+      "context_recall": 1.0
+    }
+  ]
+}
