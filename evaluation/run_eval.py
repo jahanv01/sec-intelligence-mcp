@@ -23,13 +23,12 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
-sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from judge import get_judge_embeddings, get_judge_llm  # noqa: E402
 from ragas.dataset_schema import SingleTurnSample  # noqa: E402
 from ragas.metrics import AnswerCorrectness, Faithfulness, LLMContextRecall  # noqa: E402
 from ragas.metrics._answer_similarity import AnswerSimilarity  # noqa: E402
 
+from ragas_judge import get_judge_embeddings, get_judge_llm  # noqa: E402
 from retrieval.hybrid import hybrid_search  # noqa: E402
 from retrieval.search import search as semantic_search  # noqa: E402
 from tools.analyze_filing import _run_analysis  # noqa: E402

@@ -28,9 +28,27 @@ def _is_rate_limit_error(exc: BaseException) -> bool:
     stop=stop_after_attempt(6),
     reraise=True,
 )
+def _generate_raw(prompt: str):
+    return _get_client().models.generate_content(model=GEMINI_MODEL, contents=prompt)
+
+
 def generate(prompt: str) -> str:
-    response = _get_client().models.generate_content(model=GEMINI_MODEL, contents=prompt)
-    return response.text
+    return _generate_raw(prompt).text
+
+
+def generate_with_usage(prompt: str) -> tuple[str, dict[str, int]]:
+    """Like generate(), but also returns token usage -- for observability (Issue 8.2), not
+    needed by callers that just want the answer text."""
+    response = _generate_raw(prompt)
+    usage = response.usage_metadata
+    usage_details = {}
+    if usage:
+        usage_details = {
+            "input": usage.prompt_token_count or 0,
+            "output": usage.candidates_token_count or 0,
+            "total": usage.total_token_count or 0,
+        }
+    return response.text, usage_details
 
 
 def strip_json_fences(text: str) -> str:

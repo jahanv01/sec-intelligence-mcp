@@ -1,19 +1,17 @@
 """RAGAS judge setup: wraps this project's Gemini key for use as RAGAS's LLM/embeddings judge.
 
+Lives in src/ (not evaluation/) so both evaluation/run_eval.py and production tools (e.g.
+analyze_filing's background faithfulness scoring, Issue 8.2) can import it.
+
 Pinned dependency note: see the ragas/langchain-community/langchain-google-genai comment in
 pyproject.toml -- this combo is the newest one that actually imports and runs.
 """
-
-import sys
-from pathlib import Path
-
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 
 from langchain_google_genai import ChatGoogleGenerativeAI, GoogleGenerativeAIEmbeddings
 from ragas.embeddings import LangchainEmbeddingsWrapper
 from ragas.llms import LangchainLLMWrapper
 
-from config import GEMINI_API_KEY, GEMINI_MODEL  # noqa: E402
+from config import GEMINI_API_KEY, GEMINI_MODEL
 
 
 def get_judge_llm() -> LangchainLLMWrapper:

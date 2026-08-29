@@ -25,7 +25,9 @@ async def test_no_results_returns_graceful_message_without_calling_llm(monkeypat
     monkeypatch.setattr(tool, "_search", lambda *a, **k: [])
     called = []
     monkeypatch.setattr(
-        tool, "generate", lambda prompt: called.append(prompt) or "should not be called"
+        tool,
+        "generate_with_usage",
+        lambda p: (called.append(p) or "should not be called", {}),
     )
 
     result = await tool.analyze_filing("what is the revenue?", "NVDA")
@@ -44,7 +46,7 @@ async def test_builds_prompt_with_question_and_context(monkeypatch):
         return "the answer"
 
     monkeypatch.setattr(tool, "_search", lambda *a, **k: [_fake_result(0.85)])
-    monkeypatch.setattr(tool, "generate", fake_generate)
+    monkeypatch.setattr(tool, "generate_with_usage", lambda p: (fake_generate(p), {}))
 
     result = await tool.analyze_filing("what drove revenue growth?", "NVDA")
 
@@ -58,7 +60,7 @@ async def test_returns_sources_with_citation_fields(monkeypatch):
     monkeypatch.setattr(
         tool, "_search", lambda *a, **k: [_fake_result(0.85), _fake_result(0.75, "Item 1A")]
     )
-    monkeypatch.setattr(tool, "generate", lambda prompt: "answer")
+    monkeypatch.setattr(tool, "generate_with_usage", lambda p: ("answer", {}))
 
     result = await tool.analyze_filing("q", "NVDA")
 
@@ -73,7 +75,7 @@ async def test_returns_sources_with_citation_fields(monkeypatch):
 )
 async def test_confidence_thresholds(monkeypatch, score, expected):
     monkeypatch.setattr(tool, "_search", lambda *a, **k: [_fake_result(score)])
-    monkeypatch.setattr(tool, "generate", lambda prompt: "answer")
+    monkeypatch.setattr(tool, "generate_with_usage", lambda p: ("answer", {}))
 
     result = await tool.analyze_filing("q", "NVDA")
     assert result["confidence"] == expected
@@ -83,7 +85,7 @@ async def test_reranker_off_by_default_skips_rerank_call(monkeypatch):
     called = []
     monkeypatch.setattr(tool, "_search", lambda *a, **k: [_fake_result(0.85)])
     monkeypatch.setattr(tool, "_rerank", lambda *a, **k: called.append(1) or [])
-    monkeypatch.setattr(tool, "generate", lambda prompt: "answer")
+    monkeypatch.setattr(tool, "generate_with_usage", lambda p: ("answer", {}))
 
     await tool.analyze_filing("q", "NVDA")
 
@@ -99,7 +101,7 @@ async def test_reranker_on_requests_wider_pool_and_calls_rerank(monkeypatch):
 
     monkeypatch.setattr(tool, "_search", fake_search)
     monkeypatch.setattr(tool, "_rerank", lambda query, chunks, top_k: chunks[:top_k])
-    monkeypatch.setattr(tool, "generate", lambda prompt: "answer")
+    monkeypatch.setattr(tool, "generate_with_usage", lambda p: ("answer", {}))
 
     await tool.analyze_filing("q", "NVDA", use_reranker=True)
 
