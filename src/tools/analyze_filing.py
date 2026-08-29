@@ -1,6 +1,7 @@
 """MCP tool: answer a question about a filing using RAG, grounded with citations."""
 
 import threading
+import time
 from pathlib import Path
 
 import anyio
@@ -78,12 +79,14 @@ def _retrieve(
     use_reranker: bool,
     search_fn,
 ) -> list:
+    start = time.perf_counter()
     pool_size = RERANK_CANDIDATE_POOL if use_reranker else TOP_K
     results = search_fn(
         question, ticker=ticker, form_type=form_type, fiscal_year=fiscal_year, top_k=pool_size
     )
     if use_reranker and results:
         results = _rerank(question, results, top_k=TOP_K)
+    latency_ms = round((time.perf_counter() - start) * 1000)
 
     get_client().update_current_span(
         input={
@@ -102,6 +105,7 @@ def _retrieve(
             }
             for r in results
         ],
+        metadata={"retrieval_latency_ms": latency_ms},
     )
     return results
 
@@ -109,13 +113,16 @@ def _retrieve(
 @observe(name="llm_call", as_type="generation")
 def _generate(question: str, context: str) -> str:
     prompt = _PROMPT_TEMPLATE.format(question=question, context=context)
+    start = time.perf_counter()
     answer, usage_details = generate_with_usage(prompt)
+    latency_ms = round((time.perf_counter() - start) * 1000)
 
     get_client().update_current_generation(
         input=prompt,
         output=answer,
         model=GEMINI_MODEL,
         usage_details=usage_details or None,
+        metadata={"llm_call_latency_ms": latency_ms},
     )
     return answer
 
@@ -199,7 +206,11 @@ async def analyze_filing(
         sources: List of passages cited, each with section name, page number, and text excerpt
         confidence: 'high' / 'medium' / 'low' based on retrieval score distribution
     """
+    start = time.perf_counter()
     # Runs off the event loop thread -- see search_filings.py for why.
-    return await anyio.to_thread.run_sync(
+    result = await anyio.to_thread.run_sync(
         _run_analysis, question, ticker, form_type, fiscal_year, use_reranker
     )
+    total_latency_ms = round((time.perf_counter() - start) * 1000)
+    get_client().update_current_span(metadata={"total_latency_ms": total_latency_ms})
+    return result
