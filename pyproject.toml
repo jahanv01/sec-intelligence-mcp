@@ -20,6 +20,7 @@ dependencies = [
     # Do not `uv add --upgrade` these three without re-testing the ragas+Gemini import path.
     "langchain-community==0.3.27",
     "langchain-google-genai==2.1.9",
+    "langfuse>=4.15.1",
     "mcp[cli]>=1.0,<2.0",
     "pdfplumber>=0.11.10",
     "pydantic>=2.13.4",
