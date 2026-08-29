@@ -1,10 +1,14 @@
 """MCP tool: answer a question about a filing using RAG, grounded with citations."""
 
+import threading
+import time
 from pathlib import Path
 
 import anyio
+from langfuse import get_client, observe
 
-from llm import generate
+from config import GEMINI_MODEL
+from llm import generate_with_usage
 from retrieval.hybrid import hybrid_search as _search
 from retrieval.rerank import rerank as _rerank
 
@@ -40,6 +44,89 @@ def _format_context(results: list) -> str:
     return "\n\n".join(blocks)
 
 
+def _score_faithfulness_background(trace_id: str, question: str, answer: str, contexts: list[str]):
+    """Scores the trace's faithfulness with RAGAS in a background thread, after the tool has
+    already returned its answer -- so it doesn't add RAGAS's ~2 extra LLM calls to the
+    latency the user waits on (Issue 8.3's 8s target), and doesn't consume Gemini quota on
+    the request's critical path. Best-effort: a scoring failure must never surface to the
+    caller, since the real answer was already returned successfully.
+    """
+    try:
+        import asyncio
+
+        from ragas.dataset_schema import SingleTurnSample
+        from ragas.metrics import Faithfulness
+
+        from ragas_judge import get_judge_llm
+
+        sample = SingleTurnSample(
+            user_input=question, response=answer, retrieved_contexts=contexts or ["(none)"]
+        )
+        score = asyncio.run(Faithfulness(llm=get_judge_llm()).single_turn_ascore(sample))
+        get_client().create_score(
+            trace_id=trace_id, name="faithfulness", value=score, data_type="NUMERIC"
+        )
+    except Exception:
+        pass
+
+
+@observe(name="retrieval", as_type="retriever")
+def _retrieve(
+    question: str,
+    ticker: str,
+    form_type: str | None,
+    fiscal_year: int | None,
+    use_reranker: bool,
+    search_fn,
+) -> list:
+    start = time.perf_counter()
+    pool_size = RERANK_CANDIDATE_POOL if use_reranker else TOP_K
+    results = search_fn(
+        question, ticker=ticker, form_type=form_type, fiscal_year=fiscal_year, top_k=pool_size
+    )
+    if use_reranker and results:
+        results = _rerank(question, results, top_k=TOP_K)
+    latency_ms = round((time.perf_counter() - start) * 1000)
+
+    get_client().update_current_span(
+        input={
+            "query": question,
+            "ticker": ticker,
+            "form_type": form_type,
+            "fiscal_year": fiscal_year,
+            "use_reranker": use_reranker,
+        },
+        output=[
+            {
+                "section_name": r.section_name,
+                "page_number": r.page_number,
+                "score": r.score,
+                "preview": r.text[:150],
+            }
+            for r in results
+        ],
+        metadata={"retrieval_latency_ms": latency_ms},
+    )
+    return results
+
+
+@observe(name="llm_call", as_type="generation")
+def _generate(question: str, context: str) -> str:
+    prompt = _PROMPT_TEMPLATE.format(question=question, context=context)
+    start = time.perf_counter()
+    answer, usage_details = generate_with_usage(prompt)
+    latency_ms = round((time.perf_counter() - start) * 1000)
+
+    get_client().update_current_generation(
+        input=prompt,
+        output=answer,
+        model=GEMINI_MODEL,
+        usage_details=usage_details or None,
+        metadata={"llm_call_latency_ms": latency_ms},
+    )
+    return answer
+
+
 def _run_analysis(
     question: str,
     ticker: str,
@@ -55,12 +142,7 @@ def _run_analysis(
     generation/confidence logic as the production tool -- see Issue 7.3.
     """
     search_fn = search_fn or _search
-    pool_size = RERANK_CANDIDATE_POOL if use_reranker else TOP_K
-    results = search_fn(
-        question, ticker=ticker, form_type=form_type, fiscal_year=fiscal_year, top_k=pool_size
-    )
-    if use_reranker and results:
-        results = _rerank(question, results, top_k=TOP_K)
+    results = _retrieve(question, ticker, form_type, fiscal_year, use_reranker, search_fn)
 
     if not results:
         return {
@@ -72,8 +154,15 @@ def _run_analysis(
             "confidence": "low",
         }
 
-    prompt = _PROMPT_TEMPLATE.format(question=question, context=_format_context(results))
-    answer = generate(prompt)
+    answer = _generate(question, _format_context(results))
+
+    trace_id = get_client().get_current_trace_id()
+    if trace_id:
+        threading.Thread(
+            target=_score_faithfulness_background,
+            args=(trace_id, question, answer, [r.text for r in results]),
+            daemon=True,
+        ).start()
 
     return {
         "answer": answer,
@@ -89,6 +178,7 @@ def _run_analysis(
     }
 
 
+@observe(name="analyze_filing")
 async def analyze_filing(
     question: str,
     ticker: str,
@@ -116,7 +206,11 @@ async def analyze_filing(
         sources: List of passages cited, each with section name, page number, and text excerpt
         confidence: 'high' / 'medium' / 'low' based on retrieval score distribution
     """
+    start = time.perf_counter()
     # Runs off the event loop thread -- see search_filings.py for why.
-    return await anyio.to_thread.run_sync(
+    result = await anyio.to_thread.run_sync(
         _run_analysis, question, ticker, form_type, fiscal_year, use_reranker
     )
+    total_latency_ms = round((time.perf_counter() - start) * 1000)
+    get_client().update_current_span(metadata={"total_latency_ms": total_latency_ms})
+    return result

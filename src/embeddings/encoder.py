@@ -6,6 +6,7 @@ different representations for the two roles.
 """
 
 import numpy as np
+from langfuse import observe
 from sentence_transformers import SentenceTransformer
 
 from config import EMBEDDING_MODEL
@@ -27,8 +28,21 @@ def encode(texts: list[str]) -> np.ndarray:
     return _model.encode(texts, convert_to_numpy=True, show_progress_bar=False)
 
 
+@observe(name="embedding", as_type="embedding")
 def encode_query(query: str) -> np.ndarray:
-    """Embed a single search query. Returns shape (dim,)."""
+    """Embed a single search query. Returns shape (dim,).
+
+    Traced separately from the rest of retrieval (Issue 8.3) -- not encode_passages, which
+    runs during ingestion and would otherwise create a trace per chunk, out of this epic's
+    scope.
+
+    Latency note: normally ~100ms on this CPU-only model, but real traces showed an
+    occasional spike to 5+ seconds (once in 3 real analyze_filing calls) that was the sole
+    cause of a call exceeding the 8s target -- retrieval's non-embedding work and the LLM
+    call stayed consistent across both the slow and fast runs. Whatever else is running on
+    the machine at call time (this dev box also runs Docker/Qdrant) appears to intermittently
+    starve this CPU-bound inference call; not reproduced as a deterministic code bug.
+    """
     return encode([f"query: {query}"])[0]
 
 
