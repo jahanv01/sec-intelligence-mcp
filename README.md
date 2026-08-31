@@ -169,4 +169,4 @@ results worse with this specific model.
 
 **Epic 8 — Observability.** Added production observability to `analyze_filing` using LangFuse Cloud, with the Python SDK and required credentials documented in `.env.example`. Instrumented the full analysis flow with separate embedding, retrieval, and LLM generation spans capturing queries, filters, retrieved chunks, scores, prompts, responses, and token usage. Added background RAGAS faithfulness scoring so evaluation does not block the user response, with scores attached to the originating LangFuse trace. Added explicit latency monitoring for embedding, retrieval, LLM calls, and total tool execution. Verified the implementation with real NVDA queries, including a 1.00 faithfulness score and all expected traces/spans appearing in the LangFuse dashboard. Three real calls averaged ~5.04s, below the 8s target; one 8.82s outlier was investigated through LangFuse and traced to a 5.27s query-embedding spike, likely caused by CPU contention on the development machine rather than a reproduced code-level issue.
 
-**Epic 9: Testing & CI/CD**
+**Epic 9 — Testing & CI/CD**
