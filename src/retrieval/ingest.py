@@ -38,8 +38,17 @@ CREATE TABLE IF NOT EXISTS filing_chunks (
     section_name TEXT NOT NULL,
     text TEXT NOT NULL,
     page_number INTEGER,
-    chunk_level TEXT NOT NULL
+    chunk_level TEXT NOT NULL,
+    char_start INTEGER
 )
+"""
+
+# CREATE TABLE IF NOT EXISTS doesn't add columns to an already-existing table (e.g. this
+# project's dev DB, populated before char_start existed) -- this migration makes the column
+# show up either way. Old rows just read back NULL, same graceful-missing-metadata pattern
+# already used for page_number.
+_ADD_CHAR_START_COLUMN_SQL = """
+ALTER TABLE filing_chunks ADD COLUMN IF NOT EXISTS char_start INTEGER
 """
 
 
@@ -150,6 +159,7 @@ def ingest_filing(parsed_filing: ParsedFiling, client: QdrantClient | None = Non
     DB_PATH.parent.mkdir(parents=True, exist_ok=True)
     with duckdb.connect(str(DB_PATH)) as conn:
         conn.execute(_CREATE_CHUNKS_TABLE_SQL)
+        conn.execute(_ADD_CHAR_START_COLUMN_SQL)
 
         for batch_start in range(0, total, BATCH_SIZE):
             batch = chunks[batch_start : batch_start + BATCH_SIZE]
@@ -179,8 +189,8 @@ def ingest_filing(parsed_filing: ParsedFiling, client: QdrantClient | None = Non
                 """
                 INSERT INTO filing_chunks
                     (chunk_id, accession_number, ticker, form_type, fiscal_year,
-                     section_name, text, page_number, chunk_level)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                     section_name, text, page_number, chunk_level, char_start)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ON CONFLICT (chunk_id) DO NOTHING
                 """,
                 [
@@ -194,6 +204,7 @@ def ingest_filing(parsed_filing: ParsedFiling, client: QdrantClient | None = Non
                         c.text,
                         c.page_number,
                         c.chunk_level,
+                        c.char_start,
                     )
                     for i, c in enumerate(batch)
                 ],
