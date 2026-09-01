@@ -17,6 +17,7 @@ class RetrievedChunk(BaseModel):
     accession_number: str
     ticker: str
     fiscal_year: int | None
+    char_start: int | None = None
 
 
 def _build_filter(
@@ -67,6 +68,7 @@ def search(
             accession_number=p.payload["accession_number"],
             ticker=p.payload["ticker"],
             fiscal_year=p.payload.get("fiscal_year"),
+            char_start=p.payload.get("char_start"),
         )
         for p in response.points
     ]

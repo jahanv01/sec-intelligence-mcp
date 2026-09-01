@@ -27,11 +27,12 @@ def _tokenize(text: str) -> list[str]:
 
 def _fetch_corpus(
     ticker: str, form_type: str | None, fiscal_year: int | None
-) -> list[tuple[str, str, str, int | None, str, int | None]]:
-    """Returns (chunk_id, text, section_name, page_number, accession_number, fiscal_year)."""
+) -> list[tuple[str, str, str, int | None, str, int | None, int | None]]:
+    """Returns (chunk_id, text, section_name, page_number, accession_number, fiscal_year,
+    char_start)."""
     sql = (
-        "SELECT chunk_id, text, section_name, page_number, accession_number, fiscal_year "
-        "FROM filing_chunks WHERE ticker = ?"
+        "SELECT chunk_id, text, section_name, page_number, accession_number, fiscal_year, "
+        "char_start FROM filing_chunks WHERE ticker = ?"
     )
     params: list = [ticker.upper()]
     if form_type:
@@ -46,8 +47,11 @@ def _fetch_corpus(
             "CREATE TABLE IF NOT EXISTS filing_chunks ("
             "chunk_id TEXT PRIMARY KEY, accession_number TEXT, ticker TEXT, form_type TEXT, "
             "fiscal_year INTEGER, section_name TEXT, text TEXT, page_number INTEGER, "
-            "chunk_level TEXT)"
+            "chunk_level TEXT, char_start INTEGER)"
         )
+        # CREATE TABLE IF NOT EXISTS doesn't add columns to an already-existing table --
+        # needed for DBs populated before char_start existed (see retrieval/ingest.py).
+        conn.execute("ALTER TABLE filing_chunks ADD COLUMN IF NOT EXISTS char_start INTEGER")
         return conn.execute(sql, params).fetchall()
 
 
@@ -100,7 +104,9 @@ def hybrid_search(
         if chunk_id in semantic_by_id:
             results.append(semantic_by_id[chunk_id])
         elif chunk_id in corpus_by_id:
-            _, text, section_name, page_number, accession_number, fy = corpus_by_id[chunk_id]
+            _, text, section_name, page_number, accession_number, fy, char_start = corpus_by_id[
+                chunk_id
+            ]
             results.append(
                 RetrievedChunk(
                     chunk_id=chunk_id,
@@ -110,6 +116,7 @@ def hybrid_search(
                     score=0.0,  # BM25-only match: no cosine score to report
                     accession_number=accession_number,
                     ticker=ticker.upper(),
+                    char_start=char_start,
                     fiscal_year=fy,
                 )
             )
