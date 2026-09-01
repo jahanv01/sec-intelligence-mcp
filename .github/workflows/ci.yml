@@ -47,6 +47,9 @@ jobs:
           - 6333:6333
     env:
       GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      # Needed for the inline ingestion script below -- pytest gets this from pyproject.toml's
+      # pythonpath setting, but a plain `python -c` invocation doesn't pick that up.
+      PYTHONPATH: src
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v3
