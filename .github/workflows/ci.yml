@@ -54,24 +54,29 @@ jobs:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v3
       - run: uv sync --frozen
-      # Scoped to AAPL's 10 questions (eval/questions.jsonl's first 10 rows) rather than all
-      # 50/5 companies: each question costs ~7-8 real Gemini calls (answer + RAGAS judge), so
-      # this already spends real API quota on every PR to main -- ingesting all 5 companies'
-      # filings fresh on every run would multiply that cost for no extra gate coverage.
-      - name: Ingest the AAPL fixture filing
+      # Scoped to AAPL's first 3 questions, not all 50/5 companies: each question costs ~7-8
+      # real Gemini calls (answer + RAGAS judge), and the free tier's per-minute cap (15
+      # req/min) means even 10 questions triggers repeated rate-limit retries -- 3 keeps this
+      # fast and reliable while still exercising the real gate mechanism on every PR to main.
+      # NOT the Issue 9.2 FY2023 fixture: eval/questions.jsonl's AAPL questions are grounded
+      # in AAPL's FY2025 10-K (built during Epic 7), and retrieval filters by each question's
+      # exact fiscal_year -- ingesting the wrong year here made retrieval find nothing, which
+      # is what actually caused the real gate failure below (0.00 context recall), not a
+      # genuine faithfulness regression. Fetches live so it always matches whatever year the
+      # dataset currently expects.
+      - name: Ingest AAPL's latest 10-K (matches eval/questions.jsonl's fiscal_year)
         run: |
           uv run python -c "
-          import json
-          from pathlib import Path
-          from edgar.parser import ParsedFiling
+          from edgar.filings import get_recent_filings
+          from edgar.parser import fetch_and_parse_filing
           from retrieval.ingest import ingest_filing
 
-          fixture = json.loads(Path('tests/fixtures/aapl_fy2023_10k.json').read_text())
-          ingest_filing(ParsedFiling(**fixture))
+          filing = get_recent_filings('AAPL', '10-K', limit=1)[0]
+          ingest_filing(fetch_and_parse_filing(filing))
           "
-      - name: Run eval gate (AAPL's 10 questions, fail if faithfulness < 0.75)
+      - name: Run eval gate (AAPL's first 3 questions, fail if faithfulness < 0.75)
         run: |
           uv run python evaluation/run_eval.py \
             --output eval/results/ci_gate.json \
-            --limit 10 \
+            --limit 3 \
             --min-faithfulness 0.75
