@@ -58,3 +58,6 @@ dev = [
 [tool.pytest.ini_options]
 pythonpath = ["src"]
 asyncio_mode = "auto"
+markers = [
+    "integration: end-to-end tests against real Qdrant/Gemini infra -- slow, excluded from CI's fast test job (run manually with `pytest -m integration` before release)",
+]
