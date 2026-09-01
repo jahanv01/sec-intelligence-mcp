@@ -141,6 +141,12 @@ def main() -> None:
     parser.add_argument(
         "--offset", type=int, default=0, help="Skip the first N questions (for running in batches)"
     )
+    parser.add_argument(
+        "--min-faithfulness",
+        type=float,
+        default=None,
+        help="Exit non-zero if average faithfulness falls below this (for CI's eval-gate job)",
+    )
     args = parser.parse_args()
 
     output_path = Path(args.output)
@@ -153,6 +159,13 @@ def main() -> None:
         f"Context Recall: {s['context_recall']:.2f}"
     )
     print(f"Report written to {output_path}")
+
+    if args.min_faithfulness is not None and s["faithfulness"] < args.min_faithfulness:
+        print(
+            f"FAIL: faithfulness {s['faithfulness']:.2f} is below the "
+            f"required minimum {args.min_faithfulness:.2f}"
+        )
+        sys.exit(1)
 
 
 if __name__ == "__main__":

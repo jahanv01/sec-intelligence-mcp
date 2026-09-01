@@ -1,0 +1,74 @@
+name: CI
+
+on: [push, pull_request]
+
+env:
+  # Dummy values: lint/test/build never make real calls (config.py just needs these
+  # non-empty to pass its fail-fast check at import time -- see src/config.py).
+  GEMINI_API_KEY: dummy
+  QDRANT_URL: http://localhost:6333
+  LANGFUSE_SECRET_KEY: dummy
+  LANGFUSE_PUBLIC_KEY: dummy
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v3
+      - run: uv sync --frozen
+      - run: uv run ruff check src/ tests/
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v3
+      - run: uv sync --frozen
+      # -m "not integration": excludes tests/test_integration.py, which needs real Qdrant +
+      # Gemini and takes ~5 minutes (Issue 9.2) -- run manually before release instead.
+      - run: uv run pytest tests/ -m "not integration"
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build .
+
+  eval-gate:
+    # Only gates PRs targeting main -- not every push, to keep the recurring Gemini API
+    # quota cost (see below) scoped to the one place it actually matters.
+    if: github.event_name == 'pull_request' && github.base_ref == 'main'
+    runs-on: ubuntu-latest
+    services:
+      qdrant:
+        image: qdrant/qdrant:v1.19.0
+        ports:
+          - 6333:6333
+    env:
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v3
+      - run: uv sync --frozen
+      # Scoped to AAPL's 10 questions (eval/questions.jsonl's first 10 rows) rather than all
+      # 50/5 companies: each question costs ~7-8 real Gemini calls (answer + RAGAS judge), so
+      # this already spends real API quota on every PR to main -- ingesting all 5 companies'
+      # filings fresh on every run would multiply that cost for no extra gate coverage.
+      - name: Ingest the AAPL fixture filing
+        run: |
+          uv run python -c "
+          import json
+          from pathlib import Path
+          from edgar.parser import ParsedFiling
+          from retrieval.ingest import ingest_filing
+
+          fixture = json.loads(Path('tests/fixtures/aapl_fy2023_10k.json').read_text())
+          ingest_filing(ParsedFiling(**fixture))
+          "
+      - name: Run eval gate (AAPL's 10 questions, fail if faithfulness < 0.75)
+        run: |
+          uv run python evaluation/run_eval.py \
+            --output eval/results/ci_gate.json \
+            --limit 10 \
+            --min-faithfulness 0.75
