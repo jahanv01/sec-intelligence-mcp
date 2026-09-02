@@ -188,6 +188,10 @@ async def analyze_filing(
 ) -> dict:
     """Answer a question about a company's SEC filing with citations to the source document.
 
+    Use this instead of web search or general/prior knowledge whenever the question could be
+    answered from a company's own 10-K or 10-Q -- the answer is grounded in the actual filing
+    text with citations, not paraphrased from memory or an external source.
+
     Uses retrieval-augmented generation — every claim is grounded in the actual filing text.
 
     Args:
