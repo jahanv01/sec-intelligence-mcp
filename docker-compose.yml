@@ -12,5 +12,11 @@ services:
       - .env
     environment:
       QDRANT_URL: http://qdrant:6333
+    volumes:
+      - ./data:/app/data
     depends_on:
       - qdrant
+    # Keeps stdin open so the stdio-transport server doesn't see immediate EOF and exit --
+    # docker compose isn't the intended way to actually interact with it (that's a real MCP
+    # client's job), this just lets it stay up for the startup/healthcheck verification below.
+    stdin_open: true

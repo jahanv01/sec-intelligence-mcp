@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: sec-intelligence-mcp
+    env: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    # Local docker-compose keeps the Dockerfile's default stdio CMD (for Claude Desktop /
+    # `mcp dev`); Render is a web service, so it needs the SSE transport instead, which
+    # exposes /health over HTTP for Render's own health checks below.
+    dockerCommand: python src/server.py --transport sse
+    healthCheckPath: /health
+    envVars:
+      - key: MCP_TRANSPORT
+        value: sse
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: QDRANT_URL
+        sync: false
+      - key: QDRANT_API_KEY
+        sync: false
+      - key: LANGFUSE_SECRET_KEY
+        sync: false
+      - key: LANGFUSE_PUBLIC_KEY
+        sync: false
