@@ -1,6 +1,11 @@
 """MCP server entrypoint for sec-intelligence-mcp."""
 
+import os
+import sys
+
 from mcp.server.fastmcp import FastMCP
+from starlette.requests import Request
+from starlette.responses import PlainTextResponse
 
 from tools.analyze_filing import analyze_filing
 from tools.compare_companies import compare_companies
@@ -20,7 +25,17 @@ mcp = FastMCP(
         "general knowledge or a web search result is not. Prefer these tools whenever a "
         "question could be answered from a company's 10-K, 10-Q, or 8-K."
     ),
+    # Only relevant for the "sse"/"streamable-http" transports -- ignored under stdio.
+    # 0.0.0.0 so the container's port mapping can reach it; Render sets $PORT at runtime.
+    host="0.0.0.0",
+    port=int(os.environ.get("PORT", 8000)),
 )
+
+
+@mcp.custom_route("/health", methods=["GET"])
+async def health(_request: Request) -> PlainTextResponse:
+    """Plain-HTTP health check for the sse/streamable-http transports (e.g. Render)."""
+    return PlainTextResponse("ok")
 
 
 @mcp.tool()
@@ -38,5 +53,16 @@ mcp.tool()(detect_financial_anomalies)
 mcp.tool()(get_earnings_summary)
 
 
+def main() -> None:
+    # --transport sse|stdio overrides MCP_TRANSPORT overrides the stdio default, so local
+    # Claude Desktop usage (stdio, no flags) is unaffected by the Render deployment path.
+    transport = "stdio"
+    if "--transport" in sys.argv:
+        transport = sys.argv[sys.argv.index("--transport") + 1]
+    else:
+        transport = os.environ.get("MCP_TRANSPORT", "stdio")
+    mcp.run(transport=transport)
+
+
 if __name__ == "__main__":
-    mcp.run()
+    main()
