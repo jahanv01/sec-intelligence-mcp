@@ -22,6 +22,12 @@ from config import EMBEDDING_MODEL
 # antivirus scan of newly-installed files).
 _model = SentenceTransformer(EMBEDDING_MODEL, device="cpu")
 
+# Derived from whichever model is actually configured (e.g. 768 for e5-base-v2, 384 for the
+# lighter e5-small-v2) rather than hardcoded, so EMBEDDING_MODEL can vary per deployment
+# (Render's 512MB free tier uses e5-small-v2; local dev keeps the higher-quality base model)
+# without silently mismatching the Qdrant collection's vector size.
+EMBEDDING_DIM = _model.get_sentence_embedding_dimension()
+
 
 def encode(texts: list[str]) -> np.ndarray:
     """Embed already-prefixed passage texts. Returns shape (len(texts), dim)."""

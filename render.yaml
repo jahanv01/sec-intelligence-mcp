@@ -12,6 +12,12 @@ services:
     envVars:
       - key: MCP_TRANSPORT
         value: sse
+      # Render's free/Starter plans cap at 512MB RAM. e5-base-v2 (110M params) plus torch
+      # doesn't fit; e5-small-v2 is the same E5 family at a third of the params (~33M), which
+      # does. Local dev is unaffected -- it falls back to config.py's e5-base-v2 default,
+      # since this var is only set here, in Render's environment.
+      - key: EMBEDDING_MODEL
+        value: intfloat/e5-small-v2
       - key: GEMINI_API_KEY
         sync: false
       - key: QDRANT_URL
