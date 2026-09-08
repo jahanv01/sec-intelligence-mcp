@@ -11,11 +11,11 @@ from qdrant_client.models import Distance, PointStruct, VectorParams
 from config import QDRANT_API_KEY, QDRANT_URL
 from edgar.parser import ParsedFiling
 from embeddings.chunker import chunk_filing
-from embeddings.encoder import encode_passages
+from embeddings.encoder import EMBEDDING_DIM, encode_passages
 
 DB_PATH = Path(__file__).resolve().parents[2] / "data" / "edgar.duckdb"
 COLLECTION = "sec_filings"
-VECTOR_SIZE = 768
+VECTOR_SIZE = EMBEDDING_DIM
 BATCH_SIZE = 100
 
 _CREATE_TABLE_SQL = """
