@@ -1,6 +1,43 @@
+---
+title: sec-intelligence-mcp
+emoji: 📊
+colorFrom: blue
+colorTo: indigo
+sdk: docker
+app_port: 8000
+pinned: false
+---
+
 # sec-intelligence-mcp
 
 MCP server for SEC EDGAR filing intelligence, fetching, chunking/embedding, retrieval, and evaluation, exposed as tools an MCP client (e.g. Claude Desktop) can call.
+
+## Hosted deployment (Hugging Face Spaces)
+
+This repo doubles as a Hugging Face Space (Docker SDK) -- the YAML frontmatter above is
+metadata Spaces reads to build and run the same `Dockerfile` used for local dev, over the
+SSE transport instead of stdio. Chosen over Render because Render's free/Starter tiers cap
+at 512MB RAM, which the embedding model (e5-base-v2, CPU-only, ~440MB loaded) doesn't
+comfortably fit alongside the rest of the process; HF Spaces' free CPU tier gives ~16GB.
+
+No Dockerfile changes were needed -- `server.py`'s `main()` already falls back to the
+`MCP_TRANSPORT` env var (defaulting to `stdio`) when no `--transport` flag is passed, so
+setting `MCP_TRANSPORT=sse` as a Space variable (see below) is enough to switch it.
+
+Setup (one-time, from the Hugging Face UI):
+1. huggingface.co -> New Space -> SDK: **Docker** -> create it.
+2. Space Settings -> Variables and secrets -> add as **secrets**: `GEMINI_API_KEY`,
+   `QDRANT_URL`, `QDRANT_API_KEY`, `LANGFUSE_SECRET_KEY`, `LANGFUSE_PUBLIC_KEY`; add as a
+   **variable**: `MCP_TRANSPORT=sse`.
+3. Push this repo to the Space's git remote (HF gives you the URL after creation):
+   ```
+   git remote add hf https://huggingface.co/spaces/<your-username>/sec-intelligence-mcp
+   git push hf main
+   ```
+4. Once built, check `https://<your-username>-sec-intelligence-mcp.hf.space/health` returns `ok`.
+
+Qdrant still needs to be a separate hosted instance (Qdrant Cloud) -- Spaces storage is
+ephemeral on restart, same constraint as Render's free tier.
 
 ## Setup
 
