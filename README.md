@@ -12,6 +12,73 @@ pinned: false
 
 MCP server for SEC EDGAR filing intelligence, fetching, chunking/embedding, retrieval, and evaluation, exposed as tools an MCP client (e.g. Claude Desktop) can call.
 
+## Why this is different from other finance MCP servers
+
+Most finance-related MCP servers in the wild are data-API wrappers -- they return structured
+numbers (revenue, EPS, price) from a provider's database. None of the ones we surveyed read
+the actual filing documents, so none can answer a question that requires understanding what
+a company's management actually *said* -- e.g. "how did NVIDIA's management explain the
+datacenter revenue surge?" or "did Amazon's forward guidance tone change between quarters?".
+
+This server retrieves and quotes the real filing text (10-K, 10-Q, 8-K) with a citation --
+section name and, where available, page number -- on every claim, and its answer-generation
+prompt explicitly refuses to use prior/general knowledge when the retrieved passages don't
+contain the answer (verified: asking about NVIDIA's non-existent "Mars operations" correctly
+returns "not present in the filing" rather than an invented one). It also has an automated
+RAGAS evaluation harness (see below) that measures this claim rather than asserting it.
+
+## Architecture
+
+```mermaid
+flowchart LR
+    A[Claude Desktop / MCP client] -->|MCP tool calls| B[sec-intelligence-mcp server]
+    B --> C[SEC EDGAR API]
+    B --> D[Qdrant<br/>vector search]
+    B --> E[Gemini<br/>answer generation]
+    B --> F[LangFuse<br/>tracing + eval scores]
+    C -->|filings| B
+    D -->|cited passages| B
+    E -->|grounded answer| B
+```
+
+## Available tools
+
+| Tool | What it does | Example question |
+|---|---|---|
+| `ingest_company_filings` | Fetches, parses, and indexes a company's recent SEC filings so they can be searched/analyzed | "Ingest NVIDIA's last 3 10-Ks" |
+| `search_filings` | Semantic search across ingested filings, returns passages with citations | "Search Apple's 10-K for anything about AI investment" |
+| `analyze_filing` | Answers a specific question with a grounded, cited answer (RAG) | "What were Apple's main risk factors in their 2024 10-K?" |
+| `get_filing_summary` | Structured executive summary of a full filing (business, financials, MD&A, risks, outlook) | "Summarize NVIDIA's latest 10-K" |
+| `compare_companies` | Side-by-side comparison of 2-4 companies on a specific aspect, grounded in each company's own filing | "Compare NVIDIA and AMD's AI chip strategy" |
+| `detect_financial_anomalies` | Flags notable year-over-year changes in a company's MD&A/risk disclosures | "Did NVIDIA's risk language around China change between 2023 and 2024?" |
+| `get_earnings_summary` | Extracts headline metrics, guidance, and management commentary from a quarterly earnings release (8-K) | "Summarize Apple's Q2 2024 earnings" |
+
+## Evaluation results
+
+Measured with [RAGAS](https://github.com/explodinggradients/ragas) on 50 hand-verified
+question/ground-truth pairs across 5 companies (full methodology and raw results in
+[`eval/README.md`](eval/README.md)):
+
+| Retrieval strategy | Faithfulness | Correctness | Context Recall |
+|---|---|---|---|
+| v1: semantic-only (dense embeddings) | 0.92 | 0.67 | 0.84 |
+| v2: hybrid (BM25 + semantic via RRF) -- **production default** | 0.95 | 0.78 | 0.99 |
+| v3: hybrid + cross-encoder reranking | **0.98** | **0.82** | **1.00** |
+
+CI's eval-gate fails any PR to `main` that drops faithfulness below 0.75 on a real,
+live-ingested subset of these questions -- see `.github/workflows/ci.yml`.
+
+## LangFuse dashboard
+
+_TODO: add a screenshot of a real trace (embedding/retrieval/LLM spans + faithfulness score)
+here once captured -- the tracing itself is live, see Epic 8 in Progress so far below._
+
+## Contributing
+
+Issues and PRs welcome. See `docs/edgar-api.md` for EDGAR API quirks (rate limits, required
+User-Agent header) and `eval/README.md` before changing anything in the retrieval pipeline --
+a PR that regresses RAGAS faithfulness below 0.75 will fail CI's eval-gate job.
+
 ## Hosted deployment (Hugging Face Spaces)
 
 This repo doubles as a Hugging Face Space (Docker SDK) -- the YAML frontmatter above is
@@ -40,6 +107,9 @@ Qdrant still needs to be a separate hosted instance (Qdrant Cloud) -- Spaces sto
 ephemeral on restart, same constraint as Render's free tier.
 
 ## Setup
+
+_A one-command `uvx sec-intelligence-mcp` install (no clone needed) is planned but not yet
+packaged/published to PyPI -- for now, run from a local clone:_
 
 1. Install [uv](https://docs.astral.sh/uv/getting-started/installation/).
 2. Install dependencies:
