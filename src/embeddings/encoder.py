@@ -20,7 +20,12 @@ from config import EMBEDDING_MODEL
 # all, is the one approach confirmed to actually complete. It costs several seconds to ~1
 # minute of server startup time (first run after install can take longer -- one-time
 # antivirus scan of newly-installed files).
-_model = SentenceTransformer(EMBEDDING_MODEL, device="cpu")
+# backend="torch" pinned explicitly: sentence-transformers' default backend="auto" can
+# mis-detect the ONNX backend on models (like e5-base-v2) whose HF repo also ships onnx/
+# and openvino/ variants, and fails in a way that leaves the model silently broken (first
+# submodule ends up None) rather than raising a clear error, when onnxruntime isn't
+# installed. Forcing "torch" makes it load the actual pytorch_model.bin/safetensors weights.
+_model = SentenceTransformer(EMBEDDING_MODEL, device="cpu", backend="torch")
 
 
 def encode(texts: list[str]) -> np.ndarray:
