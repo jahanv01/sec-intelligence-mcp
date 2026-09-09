@@ -79,32 +79,52 @@ Issues and PRs welcome. See `docs/edgar-api.md` for EDGAR API quirks (rate limit
 User-Agent header) and `eval/README.md` before changing anything in the retrieval pipeline --
 a PR that regresses RAGAS faithfulness below 0.75 will fail CI's eval-gate job.
 
-## Hosted deployment (Hugging Face Spaces)
+## Hosted deployment (Oracle Cloud Always Free)
 
-This repo doubles as a Hugging Face Space (Docker SDK) -- the YAML frontmatter above is
-metadata Spaces reads to build and run the same `Dockerfile` used for local dev, over the
-SSE transport instead of stdio. Chosen over Render because Render's free/Starter tiers cap
-at 512MB RAM, which the embedding model (e5-base-v2, CPU-only, ~440MB loaded) doesn't
-comfortably fit alongside the rest of the process; HF Spaces' free CPU tier gives ~16GB.
+Deployed on an Oracle Cloud "Always Free" compute VM (Ampere A1, ARM) rather than Render or
+Hugging Face Spaces: both of those give the container an *ephemeral* filesystem (wiped on
+every restart/redeploy) and cap free-tier RAM at 512MB, which doesn't comfortably fit the
+embedding model (e5-base-v2, CPU-only, ~440MB loaded) alongside the rest of the process. A
+real Always Free VM has neither constraint -- genuine persistent disk and up to 24GB RAM --
+so Qdrant runs locally via the same `docker-compose.yml` used for local dev, with no
+separate Qdrant Cloud account needed.
 
-No Dockerfile changes were needed -- `server.py`'s `main()` already falls back to the
-`MCP_TRANSPORT` env var (defaulting to `stdio`) when no `--transport` flag is passed, so
-setting `MCP_TRANSPORT=sse` as a Space variable (see below) is enough to switch it.
-
-Setup (one-time, from the Hugging Face UI):
-1. huggingface.co -> New Space -> SDK: **Docker** -> create it.
-2. Space Settings -> Variables and secrets -> add as **secrets**: `GEMINI_API_KEY`,
-   `QDRANT_URL`, `QDRANT_API_KEY`, `LANGFUSE_SECRET_KEY`, `LANGFUSE_PUBLIC_KEY`; add as a
-   **variable**: `MCP_TRANSPORT=sse`.
-3. Push this repo to the Space's git remote (HF gives you the URL after creation):
+Setup (one-time):
+1. Create an Always Free Ampere A1 compute instance (Ubuntu image) in the Oracle Cloud
+   console, and note its public IP.
+2. In the VCN's **Security List** (not just the instance's own firewall -- both must allow
+   it), add an ingress rule for TCP port `8000` (and `22` for SSH, usually already open).
+3. SSH in, install Docker + the Compose plugin, then:
    ```
-   git remote add hf https://huggingface.co/spaces/<your-username>/sec-intelligence-mcp
-   git push hf main
+   git clone https://github.com/<your-username>/sec-intelligence-mcp.git
+   cd sec-intelligence-mcp
+   cp .env.example .env   # fill in GEMINI_API_KEY, LANGFUSE_SECRET_KEY, LANGFUSE_PUBLIC_KEY
+   echo "MCP_TRANSPORT=sse" >> .env
+   sudo docker compose up -d --build
    ```
-4. Once built, check `https://<your-username>-sec-intelligence-mcp.hf.space/health` returns `ok`.
+   `QDRANT_URL` doesn't need to be set in `.env` here -- `docker-compose.yml` already
+   overrides it to `http://qdrant:6333`, the in-network service name, for the `app` service.
+4. Also open the instance's own firewall for the port (Ubuntu ships `iptables`/`ufw` rules
+   that block it even after the Security List allows it):
+   ```
+   sudo iptables -I INPUT -p tcp --dport 8000 -j ACCEPT
+   sudo netfilter-persistent save   # or: sudo ufw allow 8000/tcp
+   ```
+5. Confirm: `curl http://<instance-public-ip>:8000/health` returns `ok`.
 
-Qdrant still needs to be a separate hosted instance (Qdrant Cloud) -- Spaces storage is
-ephemeral on restart, same constraint as Render's free tier.
+Both services have `restart: unless-stopped`, so a VM reboot brings the whole stack back up
+without manual intervention. Plain HTTP (no TLS/domain) is used for now -- fine for a demo,
+but a real production deployment would put Caddy or Nginx in front for HTTPS.
+
+### Alternative: Hugging Face Spaces (prepared, not the current deployment)
+
+The YAML frontmatter at the top of this README is Spaces metadata (Docker SDK), left in
+place in case this becomes the deployment target again -- it's inert otherwise. To use it:
+huggingface.co -> New Space -> SDK: Docker -> create it, add `GEMINI_API_KEY`, `QDRANT_URL`,
+`QDRANT_API_KEY`, `LANGFUSE_SECRET_KEY`, `LANGFUSE_PUBLIC_KEY` as **secrets** and
+`MCP_TRANSPORT=sse` as a **variable** in Space Settings, then `git push` this repo to the
+Space's git remote. Spaces storage is ephemeral on restart like Render's free tier, so this
+path still needs a separate Qdrant Cloud instance rather than the local Qdrant container.
 
 ## Setup
 
