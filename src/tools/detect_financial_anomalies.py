@@ -1,15 +1,14 @@
 """MCP tool: identify unusual year-over-year changes in a company's financial disclosures."""
 
 import json
-from pathlib import Path
 
 import anyio
 
 from llm import generate, strip_json_fences
+from promptutil import prompt_path
 from retrieval.ingest import get_full_section_text, get_ingested_fiscal_years
 
-_PROMPT_PATH = Path(__file__).resolve().parents[2] / "prompts" / "detect_anomalies.txt"
-_PROMPT_TEMPLATE = _PROMPT_PATH.read_text()
+_PROMPT_TEMPLATE = prompt_path(__file__, "detect_anomalies.txt").read_text()
 
 # MD&A (financial performance narrative) and Risk Factors (where new risks first appear).
 SECTIONS_TO_COMPARE = ["Item 7", "Item 1A"]

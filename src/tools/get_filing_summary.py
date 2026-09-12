@@ -1,16 +1,14 @@
 """MCP tool: structured executive summary of a complete filing."""
 
-from pathlib import Path
-
 import anyio
 
 from edgar.lookup import get_company_name
 from llm import generate
+from promptutil import prompt_path
 from retrieval.ingest import get_most_recent_ingested_fiscal_year
 from retrieval.search import search as _search
 
-_PROMPT_PATH = Path(__file__).resolve().parents[2] / "prompts" / "filing_summary.txt"
-_PROMPT_TEMPLATE = _PROMPT_PATH.read_text()
+_PROMPT_TEMPLATE = prompt_path(__file__, "filing_summary.txt").read_text()
 
 # field_name -> (section to pull from, retrieval query, how many chunks, extraction instruction)
 _FIELDS: dict[str, tuple[str, str, int, str]] = {

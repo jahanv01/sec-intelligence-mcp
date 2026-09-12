@@ -2,18 +2,17 @@
 
 import threading
 import time
-from pathlib import Path
 
 import anyio
 from langfuse import get_client, observe
 
 from config import GEMINI_MODEL
 from llm import generate_with_usage
+from promptutil import prompt_path
 from retrieval.hybrid import hybrid_search as _search
 from retrieval.rerank import rerank as _rerank
 
-_PROMPT_PATH = Path(__file__).resolve().parents[2] / "prompts" / "analyze_filing.txt"
-_PROMPT_TEMPLATE = _PROMPT_PATH.read_text()
+_PROMPT_TEMPLATE = prompt_path(__file__, "analyze_filing.txt").read_text()
 
 TOP_K = 5
 RERANK_CANDIDATE_POOL = 10
