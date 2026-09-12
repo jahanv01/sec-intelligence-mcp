@@ -1,8 +1,135 @@
+---
+title: sec-intelligence-mcp
+emoji: 📊
+colorFrom: blue
+colorTo: indigo
+sdk: docker
+app_port: 8000
+pinned: false
+---
+
 # sec-intelligence-mcp
 
 MCP server for SEC EDGAR filing intelligence, fetching, chunking/embedding, retrieval, and evaluation, exposed as tools an MCP client (e.g. Claude Desktop) can call.
 
+## Why this is different from other finance MCP servers
+
+Most finance-related MCP servers in the wild are data-API wrappers -- they return structured
+numbers (revenue, EPS, price) from a provider's database. None of the ones we surveyed read
+the actual filing documents, so none can answer a question that requires understanding what
+a company's management actually *said* -- e.g. "how did NVIDIA's management explain the
+datacenter revenue surge?" or "did Amazon's forward guidance tone change between quarters?".
+
+This server retrieves and quotes the real filing text (10-K, 10-Q, 8-K) with a citation --
+section name and, where available, page number -- on every claim, and its answer-generation
+prompt explicitly refuses to use prior/general knowledge when the retrieved passages don't
+contain the answer (verified: asking about NVIDIA's non-existent "Mars operations" correctly
+returns "not present in the filing" rather than an invented one). It also has an automated
+RAGAS evaluation harness (see below) that measures this claim rather than asserting it.
+
+## Architecture
+
+```mermaid
+flowchart LR
+    A[Claude Desktop / MCP client] -->|MCP tool calls| B[sec-intelligence-mcp server]
+    B --> C[SEC EDGAR API]
+    B --> D[Qdrant<br/>vector search]
+    B --> E[Gemini<br/>answer generation]
+    B --> F[LangFuse<br/>tracing + eval scores]
+    C -->|filings| B
+    D -->|cited passages| B
+    E -->|grounded answer| B
+```
+
+## Available tools
+
+| Tool | What it does | Example question |
+|---|---|---|
+| `ingest_company_filings` | Fetches, parses, and indexes a company's recent SEC filings so they can be searched/analyzed | "Ingest NVIDIA's last 3 10-Ks" |
+| `search_filings` | Semantic search across ingested filings, returns passages with citations | "Search Apple's 10-K for anything about AI investment" |
+| `analyze_filing` | Answers a specific question with a grounded, cited answer (RAG) | "What were Apple's main risk factors in their 2024 10-K?" |
+| `get_filing_summary` | Structured executive summary of a full filing (business, financials, MD&A, risks, outlook) | "Summarize NVIDIA's latest 10-K" |
+| `compare_companies` | Side-by-side comparison of 2-4 companies on a specific aspect, grounded in each company's own filing | "Compare NVIDIA and AMD's AI chip strategy" |
+| `detect_financial_anomalies` | Flags notable year-over-year changes in a company's MD&A/risk disclosures | "Did NVIDIA's risk language around China change between 2023 and 2024?" |
+| `get_earnings_summary` | Extracts headline metrics, guidance, and management commentary from a quarterly earnings release (8-K) | "Summarize Apple's Q2 2024 earnings" |
+
+## Evaluation results
+
+Measured with [RAGAS](https://github.com/explodinggradients/ragas) on 50 hand-verified
+question/ground-truth pairs across 5 companies (full methodology and raw results in
+[`eval/README.md`](eval/README.md)):
+
+| Retrieval strategy | Faithfulness | Correctness | Context Recall |
+|---|---|---|---|
+| v1: semantic-only (dense embeddings) | 0.92 | 0.67 | 0.84 |
+| v2: hybrid (BM25 + semantic via RRF) -- **production default** | 0.95 | 0.78 | 0.99 |
+| v3: hybrid + cross-encoder reranking | **0.98** | **0.82** | **1.00** |
+
+CI's eval-gate fails any PR to `main` that drops faithfulness below 0.75 on a real,
+live-ingested subset of these questions -- see `.github/workflows/ci.yml`.
+
+## LangFuse dashboard
+
+_TODO: add a screenshot of a real trace (embedding/retrieval/LLM spans + faithfulness score)
+here once captured -- the tracing itself is live, see Epic 8 in Progress so far below._
+
+## Contributing
+
+Issues and PRs welcome. See `docs/edgar-api.md` for EDGAR API quirks (rate limits, required
+User-Agent header) and `eval/README.md` before changing anything in the retrieval pipeline --
+a PR that regresses RAGAS faithfulness below 0.75 will fail CI's eval-gate job.
+
+## Hosted deployment (Oracle Cloud Always Free)
+
+Deployed on an Oracle Cloud "Always Free" compute VM (Ampere A1, ARM) rather than Render or
+Hugging Face Spaces: both of those give the container an *ephemeral* filesystem (wiped on
+every restart/redeploy) and cap free-tier RAM at 512MB, which doesn't comfortably fit the
+embedding model (e5-base-v2, CPU-only, ~440MB loaded) alongside the rest of the process. A
+real Always Free VM has neither constraint -- genuine persistent disk and up to 24GB RAM --
+so Qdrant runs locally via the same `docker-compose.yml` used for local dev, with no
+separate Qdrant Cloud account needed.
+
+Setup (one-time):
+1. Create an Always Free Ampere A1 compute instance (Ubuntu image) in the Oracle Cloud
+   console, and note its public IP.
+2. In the VCN's **Security List** (not just the instance's own firewall -- both must allow
+   it), add an ingress rule for TCP port `8000` (and `22` for SSH, usually already open).
+3. SSH in, install Docker + the Compose plugin, then:
+   ```
+   git clone https://github.com/<your-username>/sec-intelligence-mcp.git
+   cd sec-intelligence-mcp
+   cp .env.example .env   # fill in GEMINI_API_KEY, LANGFUSE_SECRET_KEY, LANGFUSE_PUBLIC_KEY
+   echo "MCP_TRANSPORT=sse" >> .env
+   sudo docker compose up -d --build
+   ```
+   `QDRANT_URL` doesn't need to be set in `.env` here -- `docker-compose.yml` already
+   overrides it to `http://qdrant:6333`, the in-network service name, for the `app` service.
+4. Also open the instance's own firewall for the port (Ubuntu ships `iptables`/`ufw` rules
+   that block it even after the Security List allows it):
+   ```
+   sudo iptables -I INPUT -p tcp --dport 8000 -j ACCEPT
+   sudo netfilter-persistent save   # or: sudo ufw allow 8000/tcp
+   ```
+5. Confirm: `curl http://<instance-public-ip>:8000/health` returns `ok`.
+
+Both services have `restart: unless-stopped`, so a VM reboot brings the whole stack back up
+without manual intervention. Plain HTTP (no TLS/domain) is used for now -- fine for a demo,
+but a real production deployment would put Caddy or Nginx in front for HTTPS.
+
+### Alternative: Hugging Face Spaces (prepared, not the current deployment)
+
+The YAML frontmatter at the top of this README is Spaces metadata (Docker SDK), left in
+place in case this becomes the deployment target again -- it's inert otherwise. To use it:
+huggingface.co -> New Space -> SDK: Docker -> create it, add `GEMINI_API_KEY`, `QDRANT_URL`,
+`QDRANT_API_KEY`, `LANGFUSE_SECRET_KEY`, `LANGFUSE_PUBLIC_KEY` as **secrets** and
+`MCP_TRANSPORT=sse` as a **variable** in Space Settings, then `git push` this repo to the
+Space's git remote. Spaces storage is ephemeral on restart like Render's free tier, so this
+path still needs a separate Qdrant Cloud instance rather than the local Qdrant container.
+
 ## Setup
+
+_A one-command `uvx sec-intelligence-mcp` install (no clone needed) is planned but not yet
+packaged/published to PyPI -- for now, run from a local clone:_
 
 1. Install [uv](https://docs.astral.sh/uv/getting-started/installation/).
 2. Install dependencies:

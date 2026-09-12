@@ -1,6 +1,7 @@
 services:
   qdrant:
     image: qdrant/qdrant:v1.19.0
+    restart: unless-stopped
     ports:
       - "6333:6333"
     volumes:
@@ -8,10 +9,16 @@ services:
 
   app:
     build: .
+    restart: unless-stopped
     env_file:
       - .env
     environment:
       QDRANT_URL: http://qdrant:6333
+    # Only reachable/meaningful when MCP_TRANSPORT=sse is set in .env (e.g. for a hosted VM
+    # deployment) -- under the stdio default, nothing listens on this port, so the mapping
+    # is simply unused for local Claude Desktop / `mcp dev` usage.
+    ports:
+      - "8000:8000"
     volumes:
       - ./data:/app/data
     depends_on:
