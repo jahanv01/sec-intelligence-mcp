@@ -3,6 +3,16 @@
 import os
 import sys
 
+# Must import before anything else in this file (mcp/starlette/tools/*). Deep-diagnosed on
+# an arm64 deployment: loading sentence-transformers' model at the bottom of the real import
+# chain (server -> tools.analyze_filing -> retrieval.hybrid -> retrieval.ingest ->
+# embeddings.encoder) reliably crashed with "AttributeError: 'NoneType' object has no
+# attribute 'parameters'" inside SentenceTransformer.__init__ -- yet the exact same model
+# load, run standalone or after manually replaying every other import in this chain
+# individually, always succeeded. The one remaining difference is import depth/order itself;
+# loading it first here, before anything else, reproduces the working case instead.
+import embeddings.encoder  # noqa: F401,E402
+
 from mcp.server.fastmcp import FastMCP
 from starlette.requests import Request
 from starlette.responses import PlainTextResponse
