@@ -47,13 +47,21 @@ QDRANT_API_KEY = os.getenv("QDRANT_API_KEY") or None  # optional for local Qdran
 LANGFUSE_SECRET_KEY = os.environ["LANGFUSE_SECRET_KEY"]
 LANGFUSE_PUBLIC_KEY = os.environ["LANGFUSE_PUBLIC_KEY"]
 
+# `os.getenv(name, default)` only falls back to `default` when the var is entirely unset --
+# not when it's present but blank, which is exactly what .env.example ships for every
+# optional var below ("KEY=", left blank on purpose so the file documents the key exists).
+# `or default` treats blank the same as unset. (Real bug this masked: EMBEDDING_MODEL landed
+# as "" in production, and SentenceTransformer("") failed deep inside module construction
+# with an opaque "NoneType has no attribute parameters" -- not a missing-key or model/library
+# bug at all.)
+
 # Optional: SEC EDGAR requires an identifying User-Agent ("AppName contact@email.com") or it
 # returns 403. Not fail-fast since a sensible default works for local dev.
-SEC_EDGAR_USER_AGENT = os.getenv("SEC_EDGAR_USER_AGENT", "sec-intelligence-mcp dev@example.com")
+SEC_EDGAR_USER_AGENT = os.getenv("SEC_EDGAR_USER_AGENT") or "sec-intelligence-mcp dev@example.com"
 
 # Optional: which sentence-transformers model to embed with. e5-base-v2 (768-dim, CPU-only,
 # 110M params) is the default; bge-base-en-v1.5 is a same-family drop-in alternative.
-EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "intfloat/e5-base-v2")
+EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL") or "intfloat/e5-base-v2"
 
 # If the model is already cached locally, skip huggingface_hub's "is there a newer revision"
 # network check entirely. That check proved unreliable when this server runs as a stdio
@@ -70,4 +78,4 @@ if (_hf_cache_dir / _model_cache_name).exists():
 # Optional: Gemini model for answer generation/summarization. "-latest" aliases track
 # whatever Google currently recommends, so this doesn't need updating as specific dated
 # model versions get deprecated.
-GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-flash-lite-latest")
+GEMINI_MODEL = os.getenv("GEMINI_MODEL") or "gemini-flash-lite-latest"

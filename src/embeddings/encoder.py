@@ -5,17 +5,11 @@ mixing this up (or omitting it) measurably hurts retrieval quality, since the mo
 different representations for the two roles.
 """
 
-import shutil
-import time
-from pathlib import Path
-
 import numpy as np
-from huggingface_hub import constants as hf_constants
 from langfuse import observe
 from sentence_transformers import SentenceTransformer
 
 from config import EMBEDDING_MODEL
-
 
 # Loaded eagerly, synchronously, at import time -- deliberately, not lazily. Loading this on
 # first use instead (whether inline or via a background thread) meant the import started
@@ -31,32 +25,7 @@ from config import EMBEDDING_MODEL
 # and openvino/ variants, and fails in a way that leaves the model silently broken (first
 # submodule ends up None) rather than raising a clear error, when onnxruntime isn't
 # installed. Forcing "torch" makes it load the actual pytorch_model.bin/safetensors weights.
-#
-# Retry-with-cache-clear: on an arm64 deployment (Oracle Cloud), this load intermittently
-# raised "AttributeError: 'NoneType' object has no attribute 'parameters'" from deep inside
-# SentenceTransformer's module construction -- not reproducible in isolation (the identical
-# call, run standalone, consistently succeeded), so most likely a corrupted/incomplete
-# download or a native-library race rather than a real code bug. Root cause not confirmed;
-# this treats it as transient and retries against a clean cache rather than blocking release
-# on further diagnosis. If this still fails after all attempts, it raises for real.
-def _load_model(retries: int = 3, delay_seconds: float = 5.0) -> SentenceTransformer:
-    last_error: Exception | None = None
-    for attempt in range(1, retries + 1):
-        try:
-            return SentenceTransformer(EMBEDDING_MODEL, device="cpu", backend="torch")
-        except Exception as exc:  # noqa: BLE001 -- deliberately broad, see comment above
-            last_error = exc
-            cache_dir = Path(hf_constants.HF_HUB_CACHE)
-            model_cache = cache_dir / ("models--" + EMBEDDING_MODEL.replace("/", "--"))
-            shutil.rmtree(model_cache, ignore_errors=True)
-            if attempt < retries:
-                time.sleep(delay_seconds)
-    raise RuntimeError(
-        f"Failed to load embedding model {EMBEDDING_MODEL!r} after {retries} attempts"
-    ) from last_error
-
-
-_model = _load_model()
+_model = SentenceTransformer(EMBEDDING_MODEL, device="cpu", backend="torch")
 
 
 def encode(texts: list[str]) -> np.ndarray:
