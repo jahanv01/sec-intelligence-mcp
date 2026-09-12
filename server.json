@@ -1,0 +1,73 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.jahanv01/sec-intelligence-mcp",
+  "description": "SEC 10-K/10-Q/8-K search, RAG Q&A, comparison, and anomaly detection with citations.",
+  "title": "SEC Intelligence",
+  "version": "0.1.1",
+  "repository": {
+    "url": "https://github.com/jahanv01/sec-intelligence-mcp",
+    "source": "github"
+  },
+  "packages": [
+    {
+      "registryType": "pypi",
+      "registryBaseUrl": "https://pypi.org",
+      "identifier": "sec-intelligence-mcp",
+      "version": "0.1.1",
+      "runtimeHint": "uvx",
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": [
+        {
+          "name": "GEMINI_API_KEY",
+          "description": "Google Gemini API key (free tier). Get one at https://aistudio.google.com/apikey",
+          "isRequired": true,
+          "isSecret": true
+        },
+        {
+          "name": "QDRANT_URL",
+          "description": "Qdrant vector database URL, e.g. http://localhost:6333 for local Docker, or a Qdrant Cloud cluster URL",
+          "isRequired": true,
+          "isSecret": false
+        },
+        {
+          "name": "QDRANT_API_KEY",
+          "description": "Only needed for a hosted Qdrant Cloud instance; leave unset for local Qdrant",
+          "isRequired": false,
+          "isSecret": true
+        },
+        {
+          "name": "LANGFUSE_SECRET_KEY",
+          "description": "LangFuse secret key for observability (free tier). Get one at https://cloud.langfuse.com",
+          "isRequired": true,
+          "isSecret": true
+        },
+        {
+          "name": "LANGFUSE_PUBLIC_KEY",
+          "description": "LangFuse public key, paired with LANGFUSE_SECRET_KEY",
+          "isRequired": true,
+          "isSecret": false
+        },
+        {
+          "name": "SEC_EDGAR_USER_AGENT",
+          "description": "Identifying User-Agent for SEC EDGAR requests, e.g. \"YourApp you@email.com\"",
+          "isRequired": false,
+          "default": "sec-intelligence-mcp dev@example.com"
+        },
+        {
+          "name": "EMBEDDING_MODEL",
+          "description": "sentence-transformers model for embeddings",
+          "isRequired": false,
+          "default": "intfloat/e5-base-v2"
+        },
+        {
+          "name": "GEMINI_MODEL",
+          "description": "Gemini model for answer generation",
+          "isRequired": false,
+          "default": "gemini-flash-lite-latest"
+        }
+      ]
+    }
+  ]
+}
