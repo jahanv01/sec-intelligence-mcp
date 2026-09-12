@@ -72,8 +72,11 @@ live-ingested subset of these questions -- see `.github/workflows/ci.yml`.
 
 ## LangFuse dashboard
 
-_TODO: add a screenshot of a real trace (embedding/retrieval/LLM spans + faithfulness score)
-here once captured -- the tracing itself is live, see Epic 8 in Progress so far below._
+A real trace of `analyze_filing` answering "What risks does NVIDIA face from export
+controls?" -- the span tree shows `retrieval` and `embedding` nested under the tool call,
+alongside the LLM generation, with a `faithfulness: 1.00` score attached automatically:
+
+![LangFuse trace showing analyze_filing's span tree and a 1.00 faithfulness score](docs/langfuse-trace.png)
 
 ## Contributing
 
