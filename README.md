@@ -1,16 +1,6 @@
----
-title: sec-intelligence-mcp
-emoji: 📊
-colorFrom: blue
-colorTo: indigo
-sdk: docker
-app_port: 8000
-pinned: false
----
-
 <!-- mcp-name: io.github.jahanv01/sec-intelligence-mcp -->
 
-# sec-intelligence-mcp
+# 🔎 SEC Intelligence MCP — Document-Grounded Financial AI
 
 MCP server for SEC EDGAR filing intelligence, fetching, chunking/embedding, retrieval, and evaluation, exposed as tools an MCP client (e.g. Claude Desktop) can call.
 
@@ -277,63 +267,3 @@ data/                   # Gitignored local cache (DuckDB, filing PDFs, Qdrant st
 eval/                   # Test questions + ground truth answers
 scripts/                # One-off dev/test scripts
 ```
-
-
-## Progress so far
-
-**Epic 1 — Foundation.** Got the basic plumbing working: a local Python project set up with
-`uv`, a minimal MCP server that Claude Desktop can actually connect to and call, environment
-config that fails with a clear error if a required key is missing, and Qdrant (the search
-database) running locally via Docker.
-
-**Epic 2 — Fetching filings from SEC.** Given a stock ticker like "NVDA", the system now looks
-up the company, finds its annual reports (10-Ks), downloads them, strips out all the HTML
-formatting down to clean text, and splits that text into its standard labeled sections (Item 1
-Business, Item 1A Risk Factors, Item 7 MD&A, etc.) so we always know which part of the filing
-any piece of text came from.
-
-**Epic 3 — Making it searchable by meaning.** Each filing gets cut into small overlapping
-chunks, and each chunk is converted into a vector (a list of numbers capturing its meaning)
-using a free, local AI model — no paid API needed. Those vectors go into Qdrant, so a question
-like "data center revenue growth" finds the right paragraph even if it doesn't use those exact
-words, and every result comes back with a citation (company, section, filing) so we always know
-exactly where an answer came from.
-
-**Epic 4 — Tools Claude can actually call.** Wired everything into four MCP tools: one to
-fetch and index a company's filings, one for semantic search, one that answers a specific
-question with citations (using a free Gemini model, instructed to only use the retrieved
-filing text — never general knowledge), and one that generates a structured summary
-(business overview, financials, risks, outlook) of an entire filing.
-
-**Epic 5 — Making answers more trustworthy.** Tightened the answer-generation prompt so the
-model explicitly refuses to guess when a filing doesn't contain the answer, and cites every
-claim back to its exact section — this genuinely works, verified live (asking about NVIDIA's
-non-existent "Mars operations" correctly returns "not present in the filing" instead of an
-invented answer). Also implemented a second search method (BM25 exact-keyword matching,
-blended with the existing semantic search) and a re-ranking step, both tested against real
-data rather than assumed to work.
-
-Honest result: the two acceptance benchmarks weren't met as originally written, and the
-investigation into *why* turned out to be the more useful finding. Quadrupling the test
-corpus made both hybrid retrieval and re-ranking perform *worse* on the strict pass/fail
-metric — which disproved an initial "not enough data" theory rather than confirming it. The
-real explanation: the benchmark's accounting-term queries are formulaic line items where
-keyword search and semantic search already agree, leaving no ambiguity for hybrid search to
-resolve — its actual value showed up on a genuinely ambiguous query where semantic search
-drifted toward the wrong (but related) passage. Re-ranking's shortfall turned out to be a
-model-fit issue (the specified cross-encoder was trained on web search, not SEC filings), not
-something more data would fix. Hybrid search is used by default since it never hurt in
-testing; re-ranking is implemented but kept opt-in (`use_reranker`) since it occasionally made
-results worse with this specific model.
-
-**Epic 6 — Advanced MCP Tools v2.** Added three tools that combine multiple filings or companies into higher-level analysis: compare_companies grounds a side-by-side comparison of 2-4 companies in their actual filing text with citations; detect_financial_anomalies compares a company's MD&A and Risk Factors sections across consecutive fiscal years and flags notable changes (new risks, unexplained financial swings, tone shifts); get_earnings_summary locates a company's quarterly earnings press release (the 8-K Exhibit 99.1) and extracts headline metrics, management quotes, guidance, and tone. All three were verified against real data: NVIDIA's actual FY2023→FY2024 datacenter revenue surge (126% growth) was correctly flagged as a high-severity anomaly, and Apple's real Q2 2024 earnings release yielded 4 grounded management statements from Tim Cook and Luca Maestri.
-
-**Epic 7 — Evaluation Pipeline.** Built an automated RAG-quality eval harness so quality is measured before every release, not assumed. 50 real question-answer pairs across 5 companies (AAPL, NVDA, MSFT, AMZN, GOOGL) and 5 question types, with ground truth extracted from actual 10-K filings and independently verified against source text — not LLM-invented. Scored with RAGAS (faithfulness, answer correctness, context recall), wired to this project's own Gemini key rather than RAGAS's OpenAI default. Building the eval dataset surfaced and fixed two real production bugs: section-detection was silently missing real headings on filers that use a non-breaking space (Amazon, NVIDIA) or repeat "Item N" as a running header throughout a section (Microsoft), corrupting section boundaries for any company beyond the original three tested now fixed and regression-tested. Separately, the core Gemini call had no retry/backoff, so any tool could crash outright on a routine rate limit now retries with exponential backoff.
-
-**Epic 8 — Observability.** Added production observability to `analyze_filing` using LangFuse Cloud, with the Python SDK and required credentials documented in `.env.example`. Instrumented the full analysis flow with separate embedding, retrieval, and LLM generation spans capturing queries, filters, retrieved chunks, scores, prompts, responses, and token usage. Added background RAGAS faithfulness scoring so evaluation does not block the user response, with scores attached to the originating LangFuse trace. Added explicit latency monitoring for embedding, retrieval, LLM calls, and total tool execution. Verified the implementation with real NVDA queries, including a 1.00 faithfulness score and all expected traces/spans appearing in the LangFuse dashboard. Three real calls averaged ~5.04s, below the 8s target; one 8.82s outlier was investigated through LangFuse and traced to a 5.27s query-embedding spike, likely caused by CPU contention on the development machine rather than a reproduced code-level issue.
-
-**Epic 9 — Testing & CI/CD.** Set up a real GitHub Actions pipeline so quality gates run automatically on every push and PR, not just when someone remembers to run tests manually. Unit test coverage for core modules (edgar/lookup.py, embeddings/chunker.py, retrieval/search.py, config.py) was already in place from writing tests alongside each epic as it was built — 117 tests total, all mocked, zero real network calls, running in under a minute. Added a real end-to-end integration test against Apple's actual FY2023 10-K (ingest → search → analyze → verify citation), marked to run manually before release rather than on every push since it needs live Qdrant and Gemini and takes several minutes.
-
-The CI pipeline itself has four jobs: lint, test, a Docker build check, and an eval-gate that runs a subset of the real Epic 7 eval questions against live-ingested data on every PR to main, failing the build if faithfulness drops below 0.75. Getting this actually working end-to-end (not just written) surfaced two real bugs worth noting: a PYTHONPATH gap that broke an inline ingestion step, and a fiscal-year mismatch where the CI job was ingesting the wrong year's filing relative to what the eval questions expected — both caught and fixed by watching real CI runs fail, not by inspection alone. The eval-gate is intentionally scoped to a handful of questions rather than the full 50, since each one costs several real Gemini API calls and the free tier's daily quota is a real, previously-hit constraint.
-
-
