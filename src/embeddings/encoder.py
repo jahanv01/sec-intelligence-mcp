@@ -16,6 +16,7 @@ from sentence_transformers import SentenceTransformer
 
 from config import EMBEDDING_MODEL
 
+
 # Loaded eagerly, synchronously, at import time -- deliberately, not lazily. Loading this on
 # first use instead (whether inline or via a background thread) meant the import started
 # after the MCP server's asyncio event loop was already running, which hung indefinitely

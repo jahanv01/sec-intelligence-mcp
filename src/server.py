@@ -11,7 +11,7 @@ import sys
 # load, run standalone or after manually replaying every other import in this chain
 # individually, always succeeded. The one remaining difference is import depth/order itself;
 # loading it first here, before anything else, reproduces the working case instead.
-import embeddings.encoder  # noqa: F401,E402
+import embeddings.encoder  # noqa: F401,E402,I001 -- isort: skip
 
 from mcp.server.fastmcp import FastMCP
 from starlette.requests import Request
