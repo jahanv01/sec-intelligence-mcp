@@ -8,6 +8,8 @@ app_port: 8000
 pinned: false
 ---
 
+<!-- mcp-name: io.github.jahanv01/sec-intelligence-mcp -->
+
 # sec-intelligence-mcp
 
 MCP server for SEC EDGAR filing intelligence, fetching, chunking/embedding, retrieval, and evaluation, exposed as tools an MCP client (e.g. Claude Desktop) can call.
