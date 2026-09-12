@@ -4,7 +4,13 @@ RUN pip install --no-cache-dir uv
 
 WORKDIR /app
 COPY pyproject.toml uv.lock ./
-RUN uv sync --frozen --no-dev
+# --no-install-project: installs only third-party dependencies from the lockfile, not the
+# project itself -- pyproject.toml/uv.lock alone (no src/ or prompts/ yet, deliberately, to
+# keep this layer cached across source-only changes) aren't enough for hatchling to build the
+# actual package (it force-includes prompts/, which doesn't exist at this point in the
+# build). The container runs `python src/server.py` directly anyway (see CMD below), not the
+# installed console-script entry point, so the project itself never needs to be installed.
+RUN uv sync --frozen --no-dev --no-install-project
 
 
 FROM python:3.12-slim AS runtime
