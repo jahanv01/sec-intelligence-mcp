@@ -126,10 +126,22 @@ huggingface.co -> New Space -> SDK: Docker -> create it, add `GEMINI_API_KEY`, `
 Space's git remote. Spaces storage is ephemeral on restart like Render's free tier, so this
 path still needs a separate Qdrant Cloud instance rather than the local Qdrant container.
 
-## Setup
+## Quick install
 
-_A one-command `uvx sec-intelligence-mcp` install (no clone needed) is planned but not yet
-packaged/published to PyPI -- for now, run from a local clone:_
+Published on PyPI: https://pypi.org/project/sec-intelligence-mcp/. No clone needed --
+[uv](https://docs.astral.sh/uv/getting-started/installation/) fetches and runs it on demand:
+
+```
+uvx sec-intelligence-mcp
+```
+
+You'll still need the API keys below set as environment variables (or in Claude Desktop's
+config -- see "Connecting Claude Desktop") and a reachable Qdrant instance (local via Docker,
+or Qdrant Cloud); `uvx` only handles getting the code installed and running, not those.
+
+## Setup (for local development)
+
+Contributing, or want to run from source instead of the published package:
 
 1. Install [uv](https://docs.astral.sh/uv/getting-started/installation/).
 2. Install dependencies:
@@ -175,7 +187,26 @@ required keys.
 ## Connecting Claude Desktop
 
 Add this to your `claude_desktop_config.json` (on Windows:
-`%APPDATA%\Claude\claude_desktop_config.json`):
+`%APPDATA%\Claude\claude_desktop_config.json`) -- using the published package, no clone needed:
+
+```json
+{
+  "mcpServers": {
+    "sec-intelligence-mcp": {
+      "command": "uvx",
+      "args": ["sec-intelligence-mcp"],
+      "env": {
+        "GEMINI_API_KEY": "your-key",
+        "QDRANT_URL": "http://localhost:6333",
+        "LANGFUSE_SECRET_KEY": "your-key",
+        "LANGFUSE_PUBLIC_KEY": "your-key"
+      }
+    }
+  }
+}
+```
+
+Running from a local clone instead (see "Setup" above)? Use this config instead:
 
 ```json
 {
