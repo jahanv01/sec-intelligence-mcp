@@ -34,8 +34,28 @@ dependencies = [
     "torch>=2.13.0",
 ]
 
+[project.scripts]
+sec-intelligence-mcp = "server:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+# Code under src/ imports flat (e.g. `from tools.analyze_filing import ...`, `import config`)
+# rather than through a src.* or sec_intelligence_mcp.* package prefix -- `sources` strips
+# the src/ prefix so the wheel installs tools/, edgar/, embeddings/, retrieval/, config.py,
+# server.py, llm.py, and ragas_judge.py directly as top-level packages/modules, matching
+# every existing import statement without changing any of them.
+sources = ["src"]
+include = ["src/**/*.py"]
+
+[tool.hatch.build.targets.wheel.force-include]
+# Ships as a sibling top-level directory in site-packages (not nested under any package) --
+# promptutil.py's prompt_path() looks for it exactly there when running from an install.
+"prompts" = "prompts"
+
 [tool.uv]
-package = false
 # copy instead of hardlink: avoids "cloud operation... incompatible hardlinks" errors
 # when the uv cache or project dir sits under a cloud-sync provider (OneDrive, etc.)
 link-mode = "copy"

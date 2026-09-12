@@ -1,15 +1,14 @@
 """MCP tool: summarize a company's earnings press release for a given quarter."""
 
 import json
-from pathlib import Path
 
 import anyio
 
 from edgar.earnings import fetch_earnings_release
 from llm import generate, strip_json_fences
+from promptutil import prompt_path
 
-_PROMPT_PATH = Path(__file__).resolve().parents[2] / "prompts" / "get_earnings_summary.txt"
-_PROMPT_TEMPLATE = _PROMPT_PATH.read_text()
+_PROMPT_TEMPLATE = prompt_path(__file__, "get_earnings_summary.txt").read_text()
 
 _EMPTY_SUMMARY = {
     "headline_metrics": [],

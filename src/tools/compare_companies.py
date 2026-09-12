@@ -1,16 +1,15 @@
 """MCP tool: compare 2-4 companies on a specific aspect using their SEC filings."""
 
 from concurrent.futures import ThreadPoolExecutor
-from pathlib import Path
 
 import anyio
 
 from llm import generate
+from promptutil import prompt_path
 from retrieval.hybrid import hybrid_search as _search
 from retrieval.ingest import get_most_recent_ingested_fiscal_year
 
-_PROMPT_PATH = Path(__file__).resolve().parents[2] / "prompts" / "compare_companies.txt"
-_PROMPT_TEMPLATE = _PROMPT_PATH.read_text()
+_PROMPT_TEMPLATE = prompt_path(__file__, "compare_companies.txt").read_text()
 
 TOP_K_PER_COMPANY = 5
 MIN_TICKERS = 2
