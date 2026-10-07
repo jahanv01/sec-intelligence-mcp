@@ -38,8 +38,9 @@ def _confidence(top_score: float) -> str:
 def _format_context(results: list) -> str:
     blocks = []
     for r in results:
+        year = f", Fiscal Year: {r.fiscal_year}" if r.fiscal_year else ""
         page = f", Page: {r.page_number}" if r.page_number else ""
-        blocks.append(f"[Section: {r.section_name}{page}]\n{r.text}")
+        blocks.append(f"[Section: {r.section_name}{year}{page}]\n{r.text}")
     return "\n\n".join(blocks)
 
 
@@ -168,6 +169,7 @@ def _run_analysis(
         "sources": [
             {
                 "section_name": r.section_name,
+                "fiscal_year": r.fiscal_year,
                 "page_number": r.page_number,
                 "text": r.text,
             }
