@@ -53,6 +53,7 @@ async def test_builds_prompt_with_question_and_context(monkeypatch):
     assert "what drove revenue growth?" in captured["prompt"]
     assert "Revenue grew." in captured["prompt"]
     assert "Item 7" in captured["prompt"]
+    assert "Fiscal Year: 2025" in captured["prompt"]
     assert result["answer"] == "the answer"
 
 
@@ -66,7 +67,8 @@ async def test_returns_sources_with_citation_fields(monkeypatch):
 
     assert len(result["sources"]) == 2
     for source in result["sources"]:
-        assert set(source.keys()) == {"section_name", "page_number", "text"}
+        assert set(source.keys()) == {"section_name", "fiscal_year", "page_number", "text"}
+        assert source["fiscal_year"] == 2025
 
 
 @pytest.mark.parametrize(

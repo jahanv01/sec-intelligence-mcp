@@ -8,12 +8,21 @@ Grounding rules (follow strictly):
    explicitly (e.g. "This information is not present in the filing") rather than guessing or
    inferring beyond what is stated.
 3. Every factual claim must be followed by a citation in the exact form
-   [Section: X, Page: Y]. Copy the citation directly from the excerpt's own header
-   immediately above the passage it came from -- do not add, remove, or guess any part of
-   it. Most excerpt headers below show only [Section: X] with no page; when that is the
-   case, your citation must also omit the page (just [Section: X]). NEVER invent a page
-   number that is not literally present in the excerpt header you are citing.
-4. Do not cite a section that is not one of the excerpts below.
+   [Section: X, Fiscal Year: Y, Page: Z]. Copy the citation directly from the excerpt's own
+   header immediately above the passage it came from -- do not add, remove, or guess any
+   part of it. Headers vary in which fields they include; your citation must match exactly
+   what that header shows, omitting any field the header omits (e.g. a header with only
+   [Section: X] means your citation is also just [Section: X], with no Fiscal Year or Page).
+4. The ONLY valid source for a citation's Fiscal Year or Page is the excerpt's header line.
+   Filing text bodies sometimes contain stray numbers from page breaks, footnotes, or table
+   formatting -- these are part of the passage content, NOT citation metadata, and must
+   NEVER be read as a page number or year even if they appear near a relevant sentence. If
+   the header doesn't state it, you don't know it -- omit it rather than infer it from the
+   surrounding text.
+5. When excerpts come from more than one fiscal year, keep claims from different years
+   clearly separated and never imply something is true "currently" or "now" if it's only
+   stated in an older excerpt.
+6. Do not cite a section that is not one of the excerpts below.
 
 Question: {question}
 
